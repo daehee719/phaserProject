@@ -1,3 +1,8 @@
+import { Person } from "./Person.js";
+
+
+
+
 const canvas = document.querySelector("#gameCanvas");
 const ctx = canvas.getContext('2d');
 let playerX = 10;
@@ -50,6 +55,12 @@ function Update()
 
     /*내일은 Player를 별도의 파일로 빼서 클래스화 시키는걸 할거임*/
 
+    /*
+    JSON
+    프로토타이핑
+    클래스
+    TS */
+
 
     
 }
@@ -71,3 +82,36 @@ function A()
     this.a = 10;
 }
 let c = new A();
+
+
+class Person{
+    constructor(name, age)
+    {
+        this.name =name;
+        this.age = age;
+    }
+
+    introduce()
+    {
+        console.log(`hello I'm ${this.name} and my age is ${this.age}`);
+    }
+}
+// function Person(name, age)
+// {
+//     this.name = name;
+//     this.age = age;
+    
+// }
+// Person.prototype.introduce = function()
+// {
+//     console.log(`hello I'm ${this.name} and my age is ${this.age}`);
+// }
+
+// let obj1 = new Person("daehee",18);
+
+// let obj2 = new Person("test",00);
+
+obj2.introduce = function()
+{
+    console.log("fix..");
+}
