@@ -5,7 +5,7 @@ class App {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
-  private player: Player;
+  public player: Player;
   private bullet: Bullet;
   constructor(selector: string) {
     this.canvas = document.querySelector(selector) as HTMLCanvasElement;
@@ -29,6 +29,9 @@ class App {
   render(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.player.render(this.ctx);
+    if (!this.bullet.isCollision(this.canvas, this.player)) {
+      this.bullet.render(this.ctx);
+    }
   }
 }
 window.addEventListener("load", () => {
