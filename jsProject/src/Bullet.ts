@@ -1,40 +1,55 @@
-export class Bullet {
-  x: number;
-  y: number;
-  size: number;
-  speed: number;
+import { GameObject } from "./GameOject.js";
+import { Vector2 } from "./Vector2.js";
 
-  constructor(x: number, y: number, size: number, speed: number) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
+export class Bullet extends GameObject {
+  img: HTMLImageElement;
+  speed: number;
+  dir: Vector2;
+  lifeTime: number = 0;
+
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    speed: number,
+    img: HTMLImageElement
+  ) {
+    super(x, y, width, height);
+
+    this.img = img;
     this.speed = speed;
+    this.dir = new Vector2(0, 0);
   }
 
-  isCollision(canvas: HTMLCanvasElement, player: object): boolean {
-    if (
-      this.x == 0 ||
-      this.y == 0 ||
-      this.x == canvas.width - this.size ||
-      this.x == canvas.height - this.size
-    ) {
-      console.log("Collision!");
-      return true;
-    }
-    // else if(this.x ==  ) 플레이어 충돌 체크
-    // else if(this.x + this.size >= )
-    // {
-
-    // }
-    return false;
+  setDirection(dir: Vector2): void {
+    this.dir = dir;
   }
 
   update(dt: number): void {
-    this.x -= this.speed * dt;
+    this.lifeTime += dt;
+    this.translate(this.dir.multiply(this.speed * dt));
   }
+
   render(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = "#f44";
-    const half: number = this.size / 2;
-    ctx.fillRect(this.x - half, this.y - half, this.size, this.size);
+    const { x, y, width, height } = this.rect;
+    ctx.drawImage(this.img, x, y, width, height);
+  }
+
+  isOutofScreen(width: number, height: number): boolean {
+    if (this.lifeTime < 1) return false;
+
+    return (
+      this.rect.x - this.rect.width < 0 ||
+      this.rect.y - this.rect.height < 0 ||
+      this.rect.x > width ||
+      this.rect.y > height
+    );
+  }
+
+  reset(pos: Vector2, dir: Vector2): void {
+    this.lifeTime = 0;
+    this.rect.pos = pos;
+    this.setDirection(dir);
   }
 }

@@ -1,16 +1,22 @@
-export class Player {
-  x: number;
-  y: number;
-  size: number;
+import { GameObject } from "./GameOject.js";
+import { Vector2 } from "./Vector2.js";
+
+export class Player extends GameObject {
   speed: number;
-
   keyArr: boolean[] = [];
+  img: HTMLImageElement;
 
-  constructor(x: number, y: number, size: number, speed: number) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    speed: number,
+    img: HTMLImageElement
+  ) {
+    super(x, y, width, height);
     this.speed = speed;
+    this.img = img;
 
     document.addEventListener("keydown", (e) => {
       this.keyArr[e.keyCode] = true;
@@ -21,23 +27,26 @@ export class Player {
   }
 
   update(dt: number): void {
+    let delta: Vector2 = new Vector2(0, 0);
     if (this.keyArr[37]) {
-      this.x -= this.speed * dt;
+      delta.x = -1;
     }
     if (this.keyArr[38]) {
-      this.y -= this.speed * dt;
+      delta.y = -1;
     }
     if (this.keyArr[39]) {
-      this.x += this.speed * dt;
+      delta.x = 1;
     }
     if (this.keyArr[40]) {
-      this.y += this.speed * dt;
+      delta.y = 1;
     }
+    delta = delta.nomalize;
+    delta = delta.multiply(this.speed * dt);
+    this.translate(delta);
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = "#f00";
-    const half: number = this.size / 2;
-    ctx.fillRect(this.x - half, this.y - half, this.size, this.size);
+    let { x, y, width, height } = this.rect;
+    ctx.drawImage(this.img, x, y, width, height);
   }
 }
