@@ -1,4 +1,6 @@
+import { Collider } from "./Collider.js";
 import { GameObject } from "./GameOject.js";
+import { Rect } from "./Rect.js";
 import { Vector2 } from "./Vector2.js";
 
 export class Bullet extends GameObject {
@@ -6,6 +8,7 @@ export class Bullet extends GameObject {
   speed: number;
   dir: Vector2;
   lifeTime: number = 0;
+  collider: Collider;
 
   constructor(
     x: number,
@@ -20,6 +23,7 @@ export class Bullet extends GameObject {
     this.img = img;
     this.speed = speed;
     this.dir = new Vector2(0, 0);
+    this.collider = new Collider(this.rect, new Rect(0, 0, 0, 0));
   }
 
   setDirection(dir: Vector2): void {
@@ -34,6 +38,7 @@ export class Bullet extends GameObject {
   render(ctx: CanvasRenderingContext2D): void {
     const { x, y, width, height } = this.rect;
     ctx.drawImage(this.img, x, y, width, height);
+    this.collider.render(ctx);
   }
 
   isOutofScreen(width: number, height: number): boolean {

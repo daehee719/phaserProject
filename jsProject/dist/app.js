@@ -4,23 +4,22 @@ import { Vector2 } from "./Vector2.js";
 class App {
     constructor(selector) {
         var _a;
+        this.levelTimer = 0;
+        this.gameOver = false;
         this.bulletList = [];
         this.canvas = document.querySelector(selector);
         this.ctx = (_a = this.canvas) === null || _a === void 0 ? void 0 : _a.getContext("2d");
         let playerImage = new Image();
-        let bulletImage = new Image();
+        this.bulletImage = new Image();
+        this.playTime = 0;
         playerImage.src = "/dist/img/Player.png";
-        bulletImage.src = "/dist/img/CircleBullet.png";
+        this.bulletImage.src = "/dist/img/CircleBullet.png";
         this.player = new Player(200, 200, 45, 35, 100, playerImage);
-        let playerCenter = this.player.rect.center;
         for (let i = 0; i < 30; i++) {
-            let v = this.getRandomPositionInScreen();
-            let b = new Bullet(v.x, v.y, 15, 15, 300, bulletImage);
-            let bulletCenter = b.rect.center;
-            b.setDirection(new Vector2(playerCenter.x - bulletCenter.x, playerCenter.y - bulletCenter.y).nomalize);
+            let b = this.makeBullet();
             this.bulletList.push(b);
         }
-        this.loop();
+        this.loop(this.bulletImage);
     }
     getRandomPositionInScreen() {
         let idx = Math.floor(Math.random() * 4);
@@ -46,27 +45,83 @@ class App {
         }
         return new Vector2(x, y);
     }
-    loop() {
+    checkLevel() {
+        if (this.levelTimer >= 5) {
+            this.levelTimer = 0;
+            let b = this.makeBullet();
+            this.bulletList.push(b);
+        }
+    }
+    makeBullet() {
+        let v = this.getRandomPositionInScreen();
+        let b = new Bullet(v.x, v.y, 15, 15, 300, this.bulletImage);
+        b.setDirection(this.getToPlayerDirection(b));
+        return b;
+    }
+    getToPlayerDirection(bullet) {
+        let pc = this.player.rect.center;
+        let bc = bullet.rect.center;
+        return new Vector2(pc.x - bc.x, pc.y - bc.y).nomalize;
+    }
+    loop(bulletImage) {
         const dt = 1 / 60;
         setInterval(() => {
-            this.update(dt);
+            this.update(dt, bulletImage);
             this.render();
         }, 1000 / 60);
     }
-    update(dt) {
-        this.player.update(dt);
+    update(dt, bulletImage) {
+        if (this.gameOver)
+            return;
         this.bulletList.forEach((x) => x.update(dt));
         this.bulletList.forEach((x) => {
-            if (x.isOutofScreen(this.canvas.width, this.canvas.height))
-                x.reset(this.getRandomPositionInScreen());
+            if (x.isOutofScreen(this.canvas.width, this.canvas.height)) {
+                let pos = this.getRandomPositionInScreen();
+                x.rect.pos = pos;
+                let dir = this.getToPlayerDirection(x);
+                x.reset(pos, dir);
+            }
         });
-        //5�� �ð��� ���� ���� �Ѿ� ���� �ϳ��� �� �þ����
-        // ȭ�� ���� ��ܿ� ���� �Ѿ� �� �� ���� �ð��� ǥ��ǵ��� �ϱ�(�̰� �˻� �ʿ�)
+        this.player.update(dt);
+        this.playTime += dt;
+        this.levelTimer += dt;
+        this.checkLevel();
+        this.checkCollision();
+    }
+    checkCollision() {
+        let isCol = false;
+        this.bulletList.forEach((x) => {
+            if (x.collider.checkCollision(this.player.collider)) {
+                isCol = true;
+            }
+        });
+        if (isCol) {
+            console.log("BOOM!");
+            this.gameOver = true;
+        }
+        return isCol;
+    }
+    renderUI() {
+        let uiX = 10;
+        let uiY = 10;
+        this.ctx.save();
+        this.ctx.font = "20px Arial";
+        this.ctx.textBaseline = "top";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(`bullet amount : ${this.bulletList.length}`, uiX, uiY);
+        this.ctx.fillText(`play time : ${this.playTime.toFixed(2)} `, uiX, uiY + 20);
+        this.ctx.strokeStyle = "#000";
+        let gagueX = this.canvas.width - 100;
+        this.ctx.strokeRect(gagueX, uiY, 90, 15);
+        this.ctx.fillStyle = "green";
+        this.ctx.fillRect(gagueX + 1, uiY + 1, (this.levelTimer / 5) * 88, 13);
+        this.ctx.restore();
     }
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.player.render(this.ctx);
         this.bulletList.forEach((x) => x.render(this.ctx));
+        this.renderUI();
     }
 }
 window.addEventListener("load", () => {

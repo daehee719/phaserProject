@@ -8,32 +8,31 @@ class App {
 
   public player: Player;
 
+  playTime: number;
+
+  levelTimer: number = 0;
+  gameOver: boolean = false;
+
   bulletList: Bullet[] = [];
+  bulletImage: HTMLImageElement;
+
   constructor(selector: string) {
     this.canvas = document.querySelector(selector) as HTMLCanvasElement;
     this.ctx = this.canvas?.getContext("2d") as CanvasRenderingContext2D;
     let playerImage: HTMLImageElement = new Image();
-    let bulletImage: HTMLImageElement = new Image();
+    this.bulletImage = new Image();
+    this.playTime = 0;
 
     playerImage.src = "/dist/img/Player.png";
-    bulletImage.src = "/dist/img/CircleBullet.png";
+    this.bulletImage.src = "/dist/img/CircleBullet.png";
     this.player = new Player(200, 200, 45, 35, 100, playerImage);
-    let playerCenter: Vector2 = this.player.rect.center;
 
     for (let i = 0; i < 30; i++) {
-      let v = this.getRandomPositionInScreen();
-      let b: Bullet = new Bullet(v.x, v.y, 15, 15, 300, bulletImage);
-      let bulletCenter: Vector2 = b.rect.center;
-
-      b.setDirection(
-        new Vector2(
-          playerCenter.x - bulletCenter.x,
-          playerCenter.y - bulletCenter.y
-        ).nomalize
-      );
+      let b: Bullet = this.makeBullet();
       this.bulletList.push(b);
     }
-    this.loop();
+
+    this.loop(this.bulletImage);
   }
 
   getRandomPositionInScreen(): Vector2 {
@@ -61,31 +60,94 @@ class App {
     return new Vector2(x, y);
   }
 
-  loop(): void {
+  checkLevel(): void {
+    if (this.levelTimer >= 5) {
+      this.levelTimer = 0;
+      let b: Bullet = this.makeBullet();
+      this.bulletList.push(b);
+    }
+  }
+  makeBullet(): Bullet {
+    let v = this.getRandomPositionInScreen();
+    let b: Bullet = new Bullet(v.x, v.y, 15, 15, 300, this.bulletImage);
+    b.setDirection(this.getToPlayerDirection(b));
+    return b;
+  }
+
+  getToPlayerDirection(bullet: Bullet): Vector2 {
+    let pc: Vector2 = this.player.rect.center;
+    let bc: Vector2 = bullet.rect.center;
+    return new Vector2(pc.x - bc.x, pc.y - bc.y).nomalize;
+  }
+
+  loop(bulletImage: HTMLImageElement): void {
     const dt = 1 / 60;
     setInterval(() => {
-      this.update(dt);
+      this.update(dt, bulletImage);
       this.render();
     }, 1000 / 60);
   }
-  update(dt: number): void {
-    this.player.update(dt);
 
+  update(dt: number, bulletImage: HTMLImageElement): void {
+    if (this.gameOver) return;
     this.bulletList.forEach((x) => x.update(dt));
     this.bulletList.forEach((x) => {
-      if (x.isOutofScreen(this.canvas.width, this.canvas.height))
-        x.reset(this.getRandomPositionInScreen());
+      if (x.isOutofScreen(this.canvas.width, this.canvas.height)) {
+        let pos: Vector2 = this.getRandomPositionInScreen();
+        x.rect.pos = pos;
+        let dir: Vector2 = this.getToPlayerDirection(x);
+        x.reset(pos, dir);
+      }
     });
 
-    //5초 시간이 지날 수록 총알 수가 하나씩 더 늘어나도로
-    // 화면 왼쪽 상단에 현재 총알 수 와 현재 시간이 표기되도록 하기(이건 검색 필요)
+    this.player.update(dt);
+    this.playTime += dt;
+    this.levelTimer += dt;
+    this.checkLevel();
+    this.checkCollision();
   }
+  checkCollision(): boolean {
+    let isCol: boolean = false;
+    this.bulletList.forEach((x) => {
+      if (x.collider.checkCollision(this.player.collider)) {
+        isCol = true;
+      }
+    });
+    if (isCol) {
+      console.log("BOOM!");
+      this.gameOver = true;
+    }
+    return isCol;
+  }
+  renderUI(): void {
+    let uiX: number = 10;
+    let uiY: number = 10;
+    this.ctx.save();
+    this.ctx.font = "20px Arial";
+    this.ctx.textBaseline = "top";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(`bullet amount : ${this.bulletList.length}`, uiX, uiY);
+    this.ctx.fillText(
+      `play time : ${this.playTime.toFixed(2)} `,
+      uiX,
+      uiY + 20
+    );
+    this.ctx.strokeStyle = "#000";
+    let gagueX = this.canvas.width - 100;
+    this.ctx.strokeRect(gagueX, uiY, 90, 15);
+    this.ctx.fillStyle = "green";
+    this.ctx.fillRect(gagueX + 1, uiY + 1, (this.levelTimer / 5) * 88, 13);
+    this.ctx.restore();
+  }
+
   render(): void {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.player.render(this.ctx);
     this.bulletList.forEach((x) => x.render(this.ctx));
+    this.renderUI();
   }
 }
+
 window.addEventListener("load", () => {
   let app = new App("#gameCanvas");
 });
