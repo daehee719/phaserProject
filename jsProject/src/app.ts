@@ -1,8 +1,10 @@
 import { Player } from "./Player.js";
 import { Bullet } from "./Bullet.js";
 import { Vector2 } from "./Vector2.js";
+import { Button } from "./Button.js";
 
-class App {
+export class App {
+  static instance: App;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
@@ -15,6 +17,9 @@ class App {
 
   bulletList: Bullet[] = [];
   bulletImage: HTMLImageElement;
+  mousePos: Vector2 = new Vector2(0, 0);
+
+  restartBtn: Button;
 
   constructor(selector: string) {
     this.canvas = document.querySelector(selector) as HTMLCanvasElement;
@@ -31,7 +36,25 @@ class App {
       let b: Bullet = this.makeBullet();
       this.bulletList.push(b);
     }
-
+    this.canvas.addEventListener("mousemove", (e) => {
+      let { offsetX, offsetY } = e;
+      this.mousePos.x = offsetX;
+      this.mousePos.y = offsetY;
+    });
+    this.canvas.addEventListener("click", (e) => {
+      if (this.restartBtn.checkClick());
+    });
+    this.restartBtn = new Button(
+      this.canvas.width / 2 - 60,
+      300,
+      120,
+      60,
+      "Restart?",
+      () => {
+        //게임 재시작 하는 함수 실행
+        //종료시에 화면 가운데에 현재 버틴 시간 나오게
+      }
+    );
     this.loop(this.bulletImage);
   }
 
@@ -89,6 +112,7 @@ class App {
   }
 
   update(dt: number, bulletImage: HTMLImageElement): void {
+    this.restartBtn.update(dt);
     if (this.gameOver) return;
     this.bulletList.forEach((x) => x.update(dt));
     this.bulletList.forEach((x) => {
@@ -137,6 +161,17 @@ class App {
     this.ctx.strokeRect(gagueX, uiY, 90, 15);
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(gagueX + 1, uiY + 1, (this.levelTimer / 5) * 88, 13);
+
+    if (this.gameOver) {
+      this.ctx.fillStyle = "rgba(0,0,0,0.3)";
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillStyle = "#fff";
+      this.ctx.font = "50px Arial";
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "bottom";
+      this.ctx.fillText("GameOver", this.canvas.width / 2, 150);
+      this.restartBtn.render(this.ctx);
+    }
     this.ctx.restore();
   }
 
@@ -150,4 +185,5 @@ class App {
 
 window.addEventListener("load", () => {
   let app = new App("#gameCanvas");
+  App.instance = app;
 });

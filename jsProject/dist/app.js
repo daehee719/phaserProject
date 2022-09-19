@@ -1,12 +1,14 @@
 import { Player } from "./Player.js";
 import { Bullet } from "./Bullet.js";
 import { Vector2 } from "./Vector2.js";
-class App {
+import { Button } from "./Button.js";
+export class App {
     constructor(selector) {
         var _a;
         this.levelTimer = 0;
         this.gameOver = false;
         this.bulletList = [];
+        this.mousePos = new Vector2(0, 0);
         this.canvas = document.querySelector(selector);
         this.ctx = (_a = this.canvas) === null || _a === void 0 ? void 0 : _a.getContext("2d");
         let playerImage = new Image();
@@ -19,6 +21,19 @@ class App {
             let b = this.makeBullet();
             this.bulletList.push(b);
         }
+        this.canvas.addEventListener("mousemove", (e) => {
+            let { offsetX, offsetY } = e;
+            this.mousePos.x = offsetX;
+            this.mousePos.y = offsetY;
+        });
+        this.canvas.addEventListener("click", (e) => {
+            if (this.restartBtn.checkClick())
+                ;
+        });
+        this.restartBtn = new Button(this.canvas.width / 2 - 60, 300, 120, 60, "Restart?", () => {
+            //���� ����� �ϴ� �Լ� ����
+            //����ÿ� ȭ�� ����� ���� ��ƾ �ð� ������
+        });
         this.loop(this.bulletImage);
     }
     getRandomPositionInScreen() {
@@ -71,6 +86,7 @@ class App {
         }, 1000 / 60);
     }
     update(dt, bulletImage) {
+        this.restartBtn.update(dt);
         if (this.gameOver)
             return;
         this.bulletList.forEach((x) => x.update(dt));
@@ -115,6 +131,16 @@ class App {
         this.ctx.strokeRect(gagueX, uiY, 90, 15);
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(gagueX + 1, uiY + 1, (this.levelTimer / 5) * 88, 13);
+        if (this.gameOver) {
+            this.ctx.fillStyle = "rgba(0,0,0,0.3)";
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = "#fff";
+            this.ctx.font = "50px Arial";
+            this.ctx.textAlign = "center";
+            this.ctx.textBaseline = "bottom";
+            this.ctx.fillText("GameOver", this.canvas.width / 2, 150);
+            this.restartBtn.render(this.ctx);
+        }
         this.ctx.restore();
     }
     render() {
@@ -126,4 +152,5 @@ class App {
 }
 window.addEventListener("load", () => {
     let app = new App("#gameCanvas");
+    App.instance = app;
 });
