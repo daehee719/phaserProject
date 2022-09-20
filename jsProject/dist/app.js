@@ -31,10 +31,20 @@ export class App {
                 ;
         });
         this.restartBtn = new Button(this.canvas.width / 2 - 60, 300, 120, 60, "Restart?", () => {
-            //���� ����� �ϴ� �Լ� ����
-            //����ÿ� ȭ�� ����� ���� ��ƾ �ð� ������
+            this.gameStart();
         });
         this.loop(this.bulletImage);
+    }
+    gameStart() {
+        this.playTime = 0;
+        this.gameOver = false;
+        this.levelTimer = 0;
+        this.player.rect.pos = new Vector2(200, 200);
+        this.bulletList = [];
+        for (let i = 0; i < 30; i++) {
+            let b = this.makeBullet();
+            this.bulletList.push(b);
+        }
     }
     getRandomPositionInScreen() {
         let idx = Math.floor(Math.random() * 4);
@@ -139,6 +149,7 @@ export class App {
             this.ctx.textAlign = "center";
             this.ctx.textBaseline = "bottom";
             this.ctx.fillText("GameOver", this.canvas.width / 2, 150);
+            this.ctx.fillText(`play time : ${this.playTime}`, this.canvas.width / 2, 150);
             this.restartBtn.render(this.ctx);
         }
         this.ctx.restore();
@@ -150,6 +161,7 @@ export class App {
         this.renderUI();
     }
 }
+App.debug = false;
 window.addEventListener("load", () => {
     let app = new App("#gameCanvas");
     App.instance = app;

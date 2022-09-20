@@ -1,10 +1,10 @@
+import { GameObject } from "./GameObject.js";
 import { App } from "./app.js";
-import { GameObject } from "./GameOject.js";
-import { Vector2 } from "./Vector2.js";
+import * as Vector2Js from "./Vector2.js";
 
 export class Button extends GameObject {
   text: string;
-  isHover: boolean = false;
+  isHover: boolean = false; //마우스 내 위에 왔다면 트루
   action: Function;
   constructor(
     x: number,
@@ -16,22 +16,21 @@ export class Button extends GameObject {
   ) {
     super(x, y, width, height);
     this.text = text;
+    this.action = action;
   }
+
   update(dt: number): void {
-    let pos: Vector2 = App.instance.mousePos;
+    let pos: Vector2Js.Vector2 = App.instance.mousePos;
     let { x, y, width, height } = this.rect;
     this.isHover =
       pos.x > x && pos.x < x + width && pos.y > y && pos.y < y + height;
-    
+  }
+  checkClick(): void {
+    if (this.isHover) {
+      this.action();
     }
   }
-  checkClick():void
-    {
-        if (this.isHover ) 
-        {
-            this.action();
-        }
-    }
+
   render(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     ctx.fillStyle = "#fff";
@@ -42,10 +41,11 @@ export class Button extends GameObject {
     } else {
       ctx.fillStyle = "#000";
     }
+
     ctx.fillRect(x + 3, y + 3, width - 6, height - 6);
     ctx.fillStyle = "#fff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textAlign = "center"; //텍스트의 가로 정렬
+    ctx.textBaseline = "middle"; //텍스트의 세로 정렬
     ctx.font = "18px Arial";
     ctx.fillText(this.text, x + width / 2, y + height / 2);
     ctx.restore();

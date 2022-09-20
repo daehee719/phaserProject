@@ -7,6 +7,7 @@ export class App {
   static instance: App;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  static debug: boolean = false;
 
   public player: Player;
 
@@ -51,11 +52,22 @@ export class App {
       60,
       "Restart?",
       () => {
-        //게임 재시작 하는 함수 실행
-        //종료시에 화면 가운데에 현재 버틴 시간 나오게
+        this.gameStart();
       }
     );
     this.loop(this.bulletImage);
+  }
+
+  gameStart(): void {
+    this.playTime = 0;
+    this.gameOver = false;
+    this.levelTimer = 0;
+    this.player.rect.pos = new Vector2(200, 200);
+    this.bulletList = [];
+    for (let i = 0; i < 30; i++) {
+      let b: Bullet = this.makeBullet();
+      this.bulletList.push(b);
+    }
   }
 
   getRandomPositionInScreen(): Vector2 {
@@ -170,6 +182,11 @@ export class App {
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "bottom";
       this.ctx.fillText("GameOver", this.canvas.width / 2, 150);
+      this.ctx.fillText(
+        `play time : ${this.playTime}`,
+        this.canvas.width / 2,
+        150
+      );
       this.restartBtn.render(this.ctx);
     }
     this.ctx.restore();
