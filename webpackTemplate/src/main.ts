@@ -1,36 +1,20 @@
-import 'phaser';
+import Phaser from "phaser";
 
-class PlayGameScene extends Phaser.Scene {
-    image: Phaser.GameObjects.Image;
+import { PlayGameScene } from "./PlayGameScene";
+import { PreLoadScene } from "./PreLoadScene";
 
-    constructor()
-    {
-        super("PlayGame");
-    }
+const ScaleObject: Phaser.Types.Core.ScaleConfig = {
+  mode: Phaser.Scale.FIT,
+  autoCenter: Phaser.Scale.CENTER_BOTH,
+  parent: "ggm",
+  width: 640,
+  height: 960,
+};
 
-    preload() {
-        this.load.image('logo', 'assets/logo.png');
-    }
-    create() {
-        this.image = this.add.image(400, 300, 'logo');
-        //this.image.setScale(0.1);
-    }
-    update(time: number, delta:number) {
-        this.image.rotation += 15 * delta * 0.0001;
-    }
-}
-let scaleObject: Phaser.Types.Core.ScaleConfig = {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    parent:'theGame',
-    width:320,
-    height:320,
-}
-
-let config = {
-    type: Phaser.AUTO,
-    scale: scaleObject,
-    scene: PlayGameScene
+const config: Phaser.Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  scale: ScaleObject,
+  scene: [PreLoadScene, PlayGameScene],
 };
 
 new Phaser.Game(config);
