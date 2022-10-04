@@ -27,12 +27,25 @@ export class PlayGameScene extends Phaser.Scene
     currentMode:number = GameMode.IDLE;
 
     infoGroup: Phaser.GameObjects.Group;
-    locale : string;
+    locale:string;
+    saveData:any;
 
-    saveData : any;
+    popupWIndow:HTMLDivElement;
+
     constructor()
     {
         super({key:"PlayGame"});
+        this.popupWIndow = document.querySelector("#popup") as HTMLDivElement;
+        
+        this.popupWIndow.querySelector(".btn")?.addEventListener("click",()=>
+        //this.popupWIndow.classList.remove("on");
+        this.time.addEvent({
+            delay:1000,
+            callback:()=>{
+                this.scene.start("PlayGame");
+            }
+        })
+        )
     }
 
     create(): void 
@@ -41,31 +54,29 @@ export class PlayGameScene extends Phaser.Scene
         this.gameWidth = this.game.config.width as number;
         this.gameHeight = this.game.config.height as number;
         let tintColor = Phaser.Utils.Array.GetRandom(GameOption.bgColors);
-        
+        this.cameras.main.setBackgroundColor(tintColor);
+
         let saveData = localStorage.getItem("save");
+        
         if(saveData == null)
         {
             this.saveData = {level:1};
-        }
-        else
-        {
+        }else {
             this.saveData = JSON.parse(saveData as string);
         }
-
-        this.cameras.main.setBackgroundColor(tintColor);
 
         this.placeWalls();
 
         this.player = new Player(this, this.gameWidth * 0.5, -400, 'square');
         this.add.existing(this.player);
         this.squareText = new SquareText(this, this.player.x, this.player.y,
-                            'myFont', this.saveData?.level, 120, tintColor);
+                            'myFont', this.saveData.level, 120, tintColor);
         this.add.existing(this.squareText);
         this.playerTweenTargets = [this.player, this.squareText];
 
 
         this.levelText = new SquareText(this, this.player.x, 50,
-                            'myFont', `Level ${this.saveData?.level}`, 180, 0xffffff);
+                            'myFont', `Level ${this.saveData.level}`, 180, 0xffffff);
         this.add.existing(this.levelText);
 
         this.updateLevel();
@@ -76,7 +87,6 @@ export class PlayGameScene extends Phaser.Scene
     
     grow(): void 
     {
-        console.log("성장!!!");
         if(this.currentMode == GameMode.WAITING)
         {
             this.currentMode = GameMode.GROWING;
@@ -84,6 +94,7 @@ export class PlayGameScene extends Phaser.Scene
             {
                 this.infoGroup.toggleVisible();
             }
+
             this.growTween = this.tweens.add({
                 targets:this.playerTweenTargets,
                 scaleX:1,
@@ -114,6 +125,8 @@ export class PlayGameScene extends Phaser.Scene
                             duration:600,
                             ease:'Cubic.easeIn',
                             onComplete: ()=>{
+                                //여기서 게임오버 처리해줘야 한다.
+                                
                                 this.gameOver();
                             }
                         })
@@ -139,6 +152,7 @@ export class PlayGameScene extends Phaser.Scene
         if(success)
         {
             //레벨링 디자인
+            this.player.successful ++;
         }else {
             destY = this.gameHeight 
             - this.leftWall.displayHeight
@@ -150,41 +164,43 @@ export class PlayGameScene extends Phaser.Scene
             y:destY,
             duration:600,
             ease:'Bounce.easeOut',
-            onComplete:()=>
-            {
-                if(!success)
+            onComplete:()=>{
+                //땅에 떨어지고 난뒤의 내용
+                if(!success) {
                     this.gameOver();
-                else
-                {
+                }else {
+                    this.levelText.setText(GameTexts.en.success); //1
                     this.time.addEvent({
                         delay:1000,
-                        callback:()=>
-                        {
+                        callback:()=>{
                             if(this.player.successful == this.saveData.level)
                             {
                                 this.saveData.level++;
-                                localStorage.setItem("save",JSON.stringify(this.saveData));
+                                localStorage.setItem(
+                                    "save", JSON.stringify(this.saveData));
                                 this.scene.start('PlayGame');
-                            }
-                            else
-                            {
-                                this.levelText.text = `level ??`;
+                            }else {
+                                this.squareText.setText(
+                                    (this.saveData.level - this.player.successful) + "" );
+                                this.levelText.setText(`Level ${this.saveData.level}`);//2
                                 this.updateLevel();
                             }
                         }
-                    })
+                    });
                 }
             }
         });
     }
-    gameOver() {
-        this.time.addEvent({
-            delay : 1000,
-            callback:()=>
-            {
-                this.scene.start("PlayGame");
-            }
-        })
+
+    gameOver() : void 
+    {
+        this.levelText.setText(GameTexts.en.failure);
+        this.popupWIndow.classList.add("on");
+
+
+        
+        
+        
     }
 
     placeWalls(): void
@@ -213,7 +229,6 @@ export class PlayGameScene extends Phaser.Scene
         let wallWidth = 
             Phaser.Math.Between(GameOption.wallRange[0], GameOption.wallRange[1]);
         
-        console.log(holeWidth, wallWidth);
         
         this.leftSquare.tweenTo((this.gameWidth - holeWidth ) * 0.5, 500);
         this.rightSquare.tweenTo((this.gameWidth + holeWidth ) * 0.5, 500);
@@ -223,6 +238,9 @@ export class PlayGameScene extends Phaser.Scene
         this.tweens.add({
             targets:this.playerTweenTargets,
             y: 150,
+            scaleX:0.2,
+            scaleY:0.2,
+            angle:50,
             duration:500,
             ease: 'Cubic.easeOut',
             onComplete:() => {
@@ -233,7 +251,8 @@ export class PlayGameScene extends Phaser.Scene
                     yoyo:true,
                     repeat:-1
                 });
-                this.addInfo(holeWidth, wallWidth);
+                if(this.player.successful == 0)
+                    this.addInfo(holeWidth, wallWidth);
                 this.currentMode = GameMode.WAITING;
             }
         });
@@ -251,22 +270,27 @@ export class PlayGameScene extends Phaser.Scene
         targetSquare.displayWidth = holeWidth + wallWidth;
         targetSquare.displayHeight = holeWidth + wallWidth;
         targetSquare.setOrigin(0.5, 1);
-        this.infoGroup.add(targetSquare);
-        
-        let targetText = this.add.bitmapText(this.gameWidth*0.5,targetSquare.y - targetSquare.displayHeight-20,'myFont',
-        GameTexts["en"].landHere,48);
-        targetText.setOrigin(0.5,1);
+        this.infoGroup.add(targetSquare);   
+
+        let targetText = this.add.bitmapText(
+            this.gameWidth * 0.5, 
+            targetSquare.y - targetSquare.displayHeight - 20, 'myFont',
+            GameTexts["en"].landHere, 48);
+        targetText.setOrigin(0.5, 1);
         this.infoGroup.add(targetText);
 
-        let holdText = this.add.bitmapText(this.gameWidth*0.5,250,'myFont',
-        GameTexts["en"].infoLines[0],40);
-        holdText.setOrigin(0.5,0);
+        let holdText = this.add.bitmapText(
+            this.gameWidth * 0.5, 
+            250, 'myFont',
+            GameTexts["en"].infoLines[0], 40);
+        holdText.setOrigin(0.5, 0);
         this.infoGroup.add(holdText);
 
-
-        let releaseText = this.add.bitmapText(this.gameWidth*0.5,300,'myFont',
-        GameTexts["en"].infoLines[1],40);
-        releaseText.setOrigin(0.5,0);
+        let releaseText = this.add.bitmapText(
+            this.gameWidth * 0.5, 
+            300, 'myFont',
+            GameTexts["en"].infoLines[1], 40);
+        releaseText.setOrigin(0.5, 0);
         this.infoGroup.add(releaseText);
     }
 }
