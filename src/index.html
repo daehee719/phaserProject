@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Webpack</title>
+    <style>
+        * {margin:0; padding:0;}
+        body {
+            background-color: #000;
+        }
+        #popup.on 
+        {
+            visibility: visible;
+            opacity: 1;
+        }
+        #popup
+        {
+            transition: all;
+            opacity: 0;
+            position: fixed;
+            top:0;
+            left:0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+        }
+        #popup > .inner {
+            width:70%;
+            height:180px;
+            background-color: #fff;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            box-sizing: border-box;
+            padding:40px 40px;
+            grid-template-rows: 1fr, 1fr;
+            gap:10px;
+        }
+        #popup > .inner > .name {
+            outline: none;
+            border:1px solid #ddd;
+            border-radius: 5px;
+            padding:0px 12px;
+            font-size: 16px;
+        }
+        #popup > .inner > .btn 
+        {
+            background-color: rgb(18, 21, 190);
+            color:#fff;
+            font-size:17px;
+            border:1px solid rgb(7, 9, 145);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="main.js"></script>
+</head>
+<body>
+    <div id="popup" class="">
+        <div class="inner">
+            <input type="text" class="name" placeholder="이름을 입력">
+            <button class="btn">Send</button>
+        </div>
+    </div>
+    <div id="ggm"></div>
+</body>
+</html>
