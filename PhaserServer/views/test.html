@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" placeholder="이름 넣어라" id="name">
+    <input type="number" placeholder="레벨 넣어라" id="level">
+    <button id="btnSend">전송</button>
+
+    <script>
+        const nameInput = document.querySelector("#name");
+        const levelInput = document.querySelector("#level");
+
+        const btn = document.querySelector("#btnSend");
+        btn.addEventListener("click", e => {
+            let req = new XMLHttpRequest();
+            //GET, POST, PUT, DELETE
+            let username = nameInput.value;
+            let level = levelInput.value;
+            console.log(`/record?username=${username}&level=${level}`);
+            req.addEventListener("readystatechange",()=>
+            {
+                if(req.readyState == XMLHttpRequest.DONE)
+                {
+                    const result = req.responseText;
+                    console.log(result);
+                }
+            });
+
+            // let form = new FormData();
+            // form.append("username", username);
+            // form.append("level",level);
+
+            req.open("POST", `/record`);
+            req.setRequestHeader("Content-type","application/json");     
+            req.send(JSON.stringify({username,level}));
+        });
+    </script>
+</body>
+</html>
