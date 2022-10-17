@@ -2,7 +2,9 @@ import Http, {Server} from 'http';
 import Express, { Application, NextFunction, Request, Response } from 'express';
 import Path from 'path';
 import { ConPool } from './DB';
-import { ResultSetHeader } from 'mysql2';
+import { FieldPacket, ResultSetHeader } from 'mysql2';
+import Pool from 'mysql2/typings/mysql/lib/Pool';
+import { Score } from './DB';
 
 const App : Application = Express();
 
@@ -18,6 +20,7 @@ App.all("/*",(req:Request, res:Response,next:NextFunction)=>
     next();
 })
 
+
 App.get("/ggm", (req:Request, res:Response) =>{
     let filePath: string = Path.join(__dirname, "..", "views", "index.html");
     res.sendFile(filePath);
@@ -27,6 +30,15 @@ App.get("/test", (req:Request, res:Response) =>{
     res.sendFile(filePath);
 });
 
+App.get("/record",async(req:Request,res:Response)=>
+{
+    let sql:string = `SELECT * FROM scores ORDER BY level DESC, time LIMT 0,3`;
+
+    let[rows, fieldInput] :[Score[], FieldPacket[]] = await ConPool.query(sql);
+
+    res.json({rows, msg:"로딩완료"});
+
+})
 App.post("/record", async (req:Request, res:Response) =>{
     //post로 전송된 애는 body로
     //get으로 전송된 애는 query로

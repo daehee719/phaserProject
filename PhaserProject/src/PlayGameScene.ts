@@ -61,6 +61,8 @@ export class PlayGameScene extends Phaser.Scene
                 }
             });
         });
+        
+        
         this.popupWindow.querySelector("#close")?.addEventListener("click", ()=>{
             this.popupWindow.classList.remove("on");
             this.time.addEvent({
@@ -70,8 +72,22 @@ export class PlayGameScene extends Phaser.Scene
                 }
             });
         });
+        
     }
-
+    loadRankFromServer(): void
+    {
+        let req:XMLHttpRequest = new XMLHttpRequest();
+        req.open("GET","http://localhost:9090/record");
+        req.addEventListener("readystatechange",()=>
+        {
+            if(req.readyState == XMLHttpRequest.DONE)
+            {
+                const msg = JSON.parse(req.responseText);
+                console.log(msg);
+            }
+        })
+        req.send();
+    }
     create(): void 
     {
         this.locale = "en";
@@ -107,6 +123,7 @@ export class PlayGameScene extends Phaser.Scene
 
         this.input.on("pointerdown", this.grow, this);
         this.input.on("pointerup", this.stop, this);
+        this.loadRankFromServer();
     }
     
     grow(): void 
