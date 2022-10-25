@@ -5,6 +5,19 @@ import Player from "./GameObject/Player";
 import SquareText from "./GameObject/SquareText";
 import { GameTexts } from "./GameText";
 
+interface Record{
+    id:number;
+    level:number;
+    username:string;
+    time:Date;
+}
+
+interface RecordListMsg
+{
+    rows:Record[];
+    msg:string;
+}
+
 export class PlayGameScene extends Phaser.Scene
 {
     leftSquare: GameWall;
@@ -31,6 +44,7 @@ export class PlayGameScene extends Phaser.Scene
     saveData:any;
 
     popupWindow:HTMLDivElement;
+    recordList : Record[] = [];
 
     constructor()
     {
@@ -82,8 +96,9 @@ export class PlayGameScene extends Phaser.Scene
         {
             if(req.readyState == XMLHttpRequest.DONE)
             {
-                const msg = JSON.parse(req.responseText);
-                console.log(msg);
+                this.recordList =[]
+                const msg:RecordListMsg = JSON.parse(req.responseText);
+                this.recordList = msg.rows;
             }
         })
         req.send();
@@ -330,5 +345,14 @@ export class PlayGameScene extends Phaser.Scene
             GameTexts["en"].infoLines[1], 40);
         releaseText.setOrigin(0.5, 0);
         this.infoGroup.add(releaseText);
+
+        for(let i = 0; i< this.recordList.length; i++)
+        {
+            let r:Record = this.recordList[i];
+            let recordText = this.add.bitmapText(this.gameWidth*0.5, 350+i*30,'myFont',`${r.username} (${r.level}lv)`,20);
+
+            recordText.setOrigin(0.5,0);
+            this.infoGroup.add(recordText);
+        }
     }
 }
