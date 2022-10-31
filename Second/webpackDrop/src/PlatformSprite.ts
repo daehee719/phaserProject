@@ -11,7 +11,7 @@ export default class PlatformSprite extends Phaser.GameObjects.RenderTexture
     isHeroOnIt:boolean = false;
     constructor(scene:Phaser.Scene, x:number, y:number,width:number,height:number)
     {
-        super(scene, x,y, width,height);
+        super(scene, x, y, width,height);
         this.setOrigin(0.5,0.5);
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -40,5 +40,11 @@ export default class PlatformSprite extends Phaser.GameObjects.RenderTexture
         this.y = y;
         this.setSize(width,height);
         this.body.setSize(width,height);
+    }
+
+    explodeAndDestroy():void{
+        this.clearTint();
+        this.isHeroOnIt = false;
+        this.cnaLandOnIt = false;
     }
 }
