@@ -1,36 +1,38 @@
 import 'phaser';
+import { PlayGameScene } from './PlayGameScene';
+import PreloadGameScene from "./PreloadAssetScene"
+import {GameOption} from "./GameOption"
+import PreloadAssetScene from './PreloadAssetScene';
 
-class PlayGameScene extends Phaser.Scene {
-    image: Phaser.GameObjects.Image;
-
-    constructor()
-    {
-        super("PlayGame");
-    }
-
-    preload() {
-        this.load.image('logo', 'assets/logo.png');
-    }
-    create() {
-        this.image = this.add.image(400, 300, 'logo');
-        //this.image.setScale(0.1);
-    }
-    update(time: number, delta:number) {
-        this.image.rotation += 15 * delta * 0.0001;
-    }
-}
+const {width, height} = GameOption.gameSize;
 let scaleObject: Phaser.Types.Core.ScaleConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     parent:'theGame',
-    width:320,
-    height:320,
+    width,
+    height,
 }
 
-let config = {
+let physicConfig: Phaser.Types.Core.PhysicsConfig = 
+{
+    default:'arcade',
+    arcade:
+    {
+        gravity:
+        {
+            y:1280
+        },
+        debug : true
+    }
+}
+
+let config : Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
+    backgroundColor:0x444444,
     scale: scaleObject,
-    scene: PlayGameScene
+    scene: [PlayGameScene,PreloadAssetScene],
+    physics: physicConfig,
+    pixelArt:true,
 };
 
 new Phaser.Game(config);
