@@ -22,7 +22,7 @@ export default class PlayerSprite extends Phaser.Physics.Arcade.Sprite
         this.setVelocityX(200*multiplier);
 
         this.mainScene.tweens.add({
-            target:this,
+            targets:this,
             angle:45 * multiplier,
             duration:500
         })

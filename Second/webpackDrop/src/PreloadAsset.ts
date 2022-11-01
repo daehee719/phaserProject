@@ -12,6 +12,8 @@ export class PreloadAsset extends Phaser.Scene
         this.load.image('eyes','assets/eyes.png');
         this.load.image('particle','assets/particle.png');
         this.load.image('sky','assets/sky.png');
+        this.load.bitmapFont("myFont", "assets/font.png", "assets/font.fnt");
+
     }
 
     create():void

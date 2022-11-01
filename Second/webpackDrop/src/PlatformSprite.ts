@@ -42,7 +42,20 @@ export default class PlatformSprite extends Phaser.GameObjects.RenderTexture
         this.body.setSize(width,height);
     }
 
-    explodeAndDestroy():void{
+    explodeAndDestroy(emitter : Phaser.GameObjects.Particles.ParticleEmitter):void{
+        let bound : Phaser.Geom.Rectangle = this.getBounds();
+        emitter.setPosition(bound.left,bound.right);
+        emitter.active = true;
+        emitter.setEmitZone({
+            source: new Phaser.Geom.Rectangle(0,0,bound.width, bound.height),
+            type:"random",
+            quantity:50
+        })
+
+        emitter.explode(50,
+            this.x - this.displayWidth*0.5,
+            this.y - this.displayHeight*0.5,
+            )
         this.clearTint();
         this.isHeroOnIt = false;
         this.cnaLandOnIt = false;

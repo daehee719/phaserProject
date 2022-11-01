@@ -252,8 +252,6 @@ export class PlayGameScene extends Phaser.Scene
     {
         this.levelText.setText(GameTexts.en.failure);
         this.popupWindow.classList.add("on");
-        
-        
     }
 
     placeWalls(): void
