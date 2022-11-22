@@ -7,6 +7,8 @@ export default class Session
     name:string;
     position:Position = {x:0, y:0};
     id:string;
+    flipX:boolean = false;
+    isMoving:boolean = false;
 
     constructor(socket:Socket)
     {
@@ -20,7 +22,8 @@ export default class Session
         this.position.x = x;        
         this.position.y = y;
     }
-    setName(value:string):void{
+    setName(value:string):void
+    {
         this.name = value;
     }
 
@@ -31,6 +34,14 @@ export default class Session
 
     getSessionInfo() : SessionInfo
     {
-        return {id:this.id, name:this.name, position:this.position};
+        return {id:this.id, name:this.name, position:this.position, flipX:this.flipX, isMoveing: this.isMoving};
+    }
+
+    setInfo(info:SessionInfo):void
+    {
+        this.setPosition(info.position);
+        this.flipX = info.flipX;
+        this.isMoving = info.isMoveing;
+        //외의 것.
     }
 }

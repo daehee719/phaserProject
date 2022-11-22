@@ -6,6 +6,7 @@ import Session from './Session';
 import { addServerListener } from '../Network/ServerListener';
 import ServerMapManager from './ServerMapManager';
 import SessionManager from './SessionManager';
+import JobTimer from './JobTimer';
 
 //익스프레스 웹 엔진을 만들어주고
 const app: Application = Express();
@@ -44,3 +45,10 @@ io.on("connection", (socket: Socket) => {
 server.listen(50000, ()=>{
     console.log(`Server is running on 50000 port`);
 });
+
+let infoSyncTimer:JobTimer = new JobTimer(50, ()=>
+{
+    let list = SessionManager.Instance.getAllSessionInfo();
+    SessionManager.Instance.broadcast("info_sync",{list},"none",false);
+});
+infoSyncTimer.startTimer();

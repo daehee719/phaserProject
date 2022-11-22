@@ -1,5 +1,6 @@
 import { Socket } from "socket.io-client";
 import PlayGameScene from "../Scenes/PlayGameScene";
+import SessionManager from "../Server/SessionManager";
 import { PlayerList, Position, SessionInfo } from "./Protocol";
 
 export const addClientListener = (socket:Socket, scene: PlayGameScene) => {
@@ -30,5 +31,14 @@ export const addClientListener = (socket:Socket, scene: PlayGameScene) => {
     socket.on("leave_player", data => {
         let info = data as SessionInfo;
         scene.removePlayer(info.id);
+    });
+
+    socket.on("info_sync", data => {
+        let pList = data as PlayerList;
+        
+        pList.list.forEach((p:SessionInfo) => {
+            if(p.id == socket.id) return;
+            scene.remotePlayers[p.id]?.setInfoSync(p);
+        });
     });
 };

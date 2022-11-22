@@ -22,6 +22,12 @@ export const addServerListener = (socket: Socket, session:Session) => {
         SessionManager.Instance.broadcast("enter_player", session.getSessionInfo(), socket.id, true);
     });
 
+    socket.on("info_sync", data=>
+    {
+        let info = data as SessionInfo;
+        SessionManager.Instance.getSession(info.id)?.setInfo(info);
+    })
+
     socket.on("disconnect", (reason:string) => {
         SessionManager.Instance.removeSession(socket.id);
         console.log(`${session.name} ( ${socket.id} ) is disconnected`);

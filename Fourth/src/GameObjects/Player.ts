@@ -39,12 +39,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         if(this.isRemote == false){
             this.cursorsKey = this.scene.input.keyboard.createCursorKeys();
             this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
+            this.scene.input.keyboard.on("keydown-Q",this.fireIceball,this);
         }else {
             //원격으로 움직이는 애들은 중력의 영향을 안받아야 해.
             this.body.setAllowGravity(false);
         }
     }
 
+    fireIceball():void{
+        console.log("발사");
+    }
     //왼쪽 오른쪽 방향만 direction으로 받는다.
     move(direction: number): void{
         this.setVelocityX(direction * this.speed);
@@ -62,9 +66,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     {
         this.x = info.position.x;
         this.y = info.position.y;
-        //나중에 여기서 모션도 변경한다.
+        this.setFlipX(info.flipX);
+        if(info.isMoveing)
+        {
+            this.play("run",true);
+        }
+        else
+        {
+            this.play("idle",true);
+        }
     }
-
+    isMoving():boolean
+    {
+        return this.body.velocity.length()>0.1;
+    }
     update(time: number, delta: number): void 
     {
         if(this.cursorsKey == undefined) return;
