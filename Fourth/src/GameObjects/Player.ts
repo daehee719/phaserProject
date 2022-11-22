@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import InitPlayerAnimation from "../Animations/PlayerAnimation";
+import InitPlayerAnimation from "../Animation/PlayerAnimation";
+import { SessionInfo } from "../Network/Protocol";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite
 {
@@ -13,24 +14,35 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
     maxJumpCount:number = 2;
     currentJumpCount:number = 0;
 
+    //네트워크 관련 변수
+    isRemote:boolean = false;
+    id:string;
+
     constructor(scene: Phaser.Scene, x:number, y:number, 
-        key:string, speed:number, jumpPower:number)
+        key:string, speed:number, jumpPower:number, id:string, isRemote:boolean)
     {
         super(scene, x, y, key);
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.speed = speed;
         this.jumpPower = jumpPower;
+        this.isRemote = isRemote;
+        this.id = id;
         this.init();
     }
 
     init(): void 
     {
         this.setCollideWorldBounds(true); //월드 경계선과 충돌
-        this.cursorsKey = this.scene.input.keyboard.createCursorKeys();
-
         InitPlayerAnimation(this.scene.anims); //플레이어 애니메이션을 만들어주고
-        this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
+
+        if(this.isRemote == false){
+            this.cursorsKey = this.scene.input.keyboard.createCursorKeys();
+            this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
+        }else {
+            //원격으로 움직이는 애들은 중력의 영향을 안받아야 해.
+            this.body.setAllowGravity(false);
+        }
     }
 
     //왼쪽 오른쪽 방향만 direction으로 받는다.
@@ -44,6 +56,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite
         {
             this.setVelocityY(-this.jumpPower);
         }
+    }
+
+    setInfoSync(info:SessionInfo):void 
+    {
+        this.x = info.position.x;
+        this.y = info.position.y;
+        //나중에 여기서 모션도 변경한다.
     }
 
     update(time: number, delta: number): void 

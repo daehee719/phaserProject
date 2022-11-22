@@ -1,7 +1,7 @@
-import Phaser from "phaser"; 
+import Phaser from 'phaser'
 import {GameOption} from "./GameOption"
-import PlayGameScene from "./Scenes/PlayGameScene";
-import PreloadAssetScene from "./Scenes/PreloadAssetScene";
+import PlayGameScene from './Scenes/PlayGameScene';
+import PreloadAssetScene from './Scenes/PreloadAssetScene';
 
 let scaleObject: Phaser.Types.Core.ScaleConfig = {
     mode: Phaser.Scale.FIT,
@@ -10,19 +10,21 @@ let scaleObject: Phaser.Types.Core.ScaleConfig = {
     width:GameOption.width,
     height:GameOption.height,
 }
-let physicsConfig : Phaser.Types.Core.PhysicsConfig=
-{
+
+let physicsConfig : Phaser.Types.Core.PhysicsConfig = {
     default:'arcade',
-    arcade:{
+    arcade: {
         debug:true,
         gravity:{y:500}
     }
 }
-let config:Phaser.Types.Core.GameConfig = {
+
+let config : Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     physics:physicsConfig,
     scale: scaleObject,
-    scene: [PreloadAssetScene,PlayGameScene]
+    scene: [PreloadAssetScene, PlayGameScene],
+    pixelArt: true
 };
 
 new Phaser.Game(config);

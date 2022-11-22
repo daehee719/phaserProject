@@ -16,7 +16,6 @@ export default class MapManager
         this.scene = scene;
         this.map = scene.make.tilemap({key});
         this.map.addTilesetImage("main_lev_build_1", "tile_1");
-        
 
         this.createLayers();
     }
@@ -25,12 +24,12 @@ export default class MapManager
     {
         const tileSet = this.map.getTileset("main_lev_build_1");
         this.platforms = this.map.createLayer("Platforms", tileSet);
-        this.environments = this.map.createLayer("Environments",tileSet);
-        this.collisions = this.map.createLayer("Collisions",tileSet);
+        this.environments = this.map.createLayer("Environments", tileSet);
+
+        this.collisions = this.map.createLayer("Collisions", tileSet);
         this.collisions.setVisible(false);
 
-        // this.collisions.setCollisionByExclusion([-1],true);
-        this.collisions.setCollisionByProperty({collide:true},true);
+        //this.collisions.setCollisionByExclusion([-1], true);
+        this.collisions.setCollisionByProperty({collide:true}, true);
     }
-    
 }
