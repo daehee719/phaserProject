@@ -18,3 +18,32 @@ export interface PlayerList
 {
     list:SessionInfo[];
 }
+export interface iceball
+{
+    ownerId:string;
+    projectileId:number;
+    position:Position;
+    direction:number;
+    velocity:number;
+    lifeTime:number;
+    damage: number;
+}
+
+export interface HitInfo
+{
+    projectileId:number;// 피격당한 투사체의 id
+    playerId:string; 
+    projectileLTPosition: Position;
+    damage: number;
+}
+
+export interface DeadInfo
+{
+    playerId:string;
+}
+
+export interface ReviveInfo
+{
+    playerId:string;
+    info:SessionInfo;
+}

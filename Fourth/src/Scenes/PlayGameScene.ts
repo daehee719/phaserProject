@@ -3,10 +3,11 @@ import MapManager from "../Core/MapManager";
 import Player from "../GameObjects/Player";
 import {GameOption} from "../GameOption";
 import {io, Socket} from "socket.io-client"
-import { Position, SessionInfo } from "../Network/Protocol";
+import { HitInfo, Position, SessionInfo } from "../Network/Protocol";
 import { addClientListener } from "../Network/ClientListener";
 import SocketManager from "../Core/SocketManager";
 import ProjectilePool from "../GameObjects/Pools/ProjectilePool";
+import Projectile from "../GameObjects/Projectile";
 
 interface RemotePlayerList 
 {
@@ -57,12 +58,32 @@ export default class PlayGameScene extends Phaser.Scene
         }else {
             this.player = new Player(this, x, y, "player", speed, jumpPower, id, isRemote);
             this.physics.add.collider(this.player, MapManager.Instance.collisions);
+            this.physics.add.collider(this.player,ProjectilePool.Instance.pool,this.hitByIceball, undefined, this);
         }
+    }
+    hitByIceball(body1:any, body2 :any):void
+    {
+        let p = body1 as Player;
+        let iceball = body2 as Projectile;
+        console.log("hit");
+        if(this.player.isWaitingForHit(iceball.projectileId)) return;
+        p.addWaiting(iceball.projectileId);
+        let {x,y}=iceball.getTopLeft();
+        let hitInfo: HitInfo=
+        {
+            playerId:SocketManager.Instance.socket.id,
+            projectileId:iceball.projectileId,
+            projectileLTPosition:{x,y},
+            damage : iceball.damage,
+        };
+        SocketManager.Instance.sendData("hit_report",hitInfo);
     }
 
     //리모트 플레이어 제거
     removePlayer(key:string):void 
     {
+        if(key == undefined) return;
+        this.remotePlayers[key].hpBar.destroy();
         this.remotePlayers[key].destroy(); //게임오브젝트를 destroy
         delete this.remotePlayers[key]; //딕셔너리에서 삭제
     }
@@ -94,4 +115,6 @@ export default class PlayGameScene extends Phaser.Scene
             SocketManager.Instance.sendData("info_sync",playerInfo);
         }
     }
+
+    
 }

@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { Position } from "../../Network/Protocol";
 import Projectile from "../Projectile";
 
 export default class ProjectilePool extends Phaser.Physics.Arcade.Group
@@ -20,11 +21,31 @@ export default class ProjectilePool extends Phaser.Physics.Arcade.Group
     }
     getProjectile():Projectile
     {
-        const p = this.getFirstDead(true) as Projectile;
-        
-        p.setActive(true);
-        p.setVisible(true);
+        let p = this.getFirstDead(false) as Projectile;
+        if(p == null)
+        {
+            p = new Projectile(this.scene, 0,0,"iceball");
+            this.add(p);
+            this.pool.push(p);
+            p.body.setAllowGravity(false);
+        }
+        else
+        {
+            p.setActive(true);
+            p.setVisible(true);
+        }
 
-        return p; 
+        return p;
+    }
+
+    searchAndDisable(id:number, pLtPosition:Position):void
+    {
+        let p = this.pool.find(x => x.projectileId == id);
+        if(p == undefined)
+        {
+            console.log(`error : no projectile id ${id}`);
+            return;
+        }
+        p.setDisable();
     }
 }
