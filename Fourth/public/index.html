@@ -5,12 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phaser Webpack</title>
-    <style>
-        *{margin:0; padding:0;}
-    </style>
+    <link rel="stylesheet" href="app.css">
     <script src="main.js"></script>
 </head>
 <body>
     <div id="theGame"></div>
+    <div id="gameDiv">
+        <div id="tooltip">
+            <div class="arrow-box"></div>
+            <span class="msg">Sample Text!!</span>
+        </div>
+        <div id="pageContainer">
+            <div id="loginPage">
+                <div class="inner">
+                    <input type="text" id="nameInput" placeholder="사용할 아이디를 5글자 이내로 입력해주세요">
+                    <button id="btnLogin" class="btn btn_blue">로그인</button>
+                </div>
+            </div>
+            <div id="lobbyPage"></div>
+            <div id="roomPage"></div>
+        </div>
+    </div>
 </body>
 </html>

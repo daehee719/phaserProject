@@ -31,6 +31,10 @@ module.exports = {
                 {
                     from:"assets/**/*",
                     context:"src/"
+                },
+                {
+                    from:"app.css",
+                    context:"src/"
                 }
             ]
         })
