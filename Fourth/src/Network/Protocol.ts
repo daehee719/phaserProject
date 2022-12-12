@@ -47,3 +47,29 @@ export interface ReviveInfo
     playerId:string;
     info:SessionInfo;
 }
+
+export interface UserInfo
+{
+    name:string;
+    playerId:string;
+}
+export interface CreateRoom
+{
+    name:string;
+    playerId:string;
+}
+
+export interface RoomInfo
+{
+    userList : UserInfo[];
+    no:number;
+    name:string;
+    userCnt:number;
+    maxCnt:number;
+    isPlaying:boolean;
+}
+
+export interface MsgBox
+{
+    msg:string;
+}

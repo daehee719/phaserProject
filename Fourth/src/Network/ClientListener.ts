@@ -1,10 +1,36 @@
 import { Socket } from "socket.io-client";
+import SocketManager from "../Core/SocketManager";
 import ProjectilePool from "../GameObjects/Pools/ProjectilePool";
+import LobbyScene from "../Scenes/LobbyScene";
 import PlayGameScene from "../Scenes/PlayGameScene";
 import SessionManager from "../Server/SessionManager";
-import { DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, SessionInfo } from "./Protocol";
+import { DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, RoomInfo, SessionInfo, UserInfo } from "./Protocol";
 
-export const addClientListener = (socket:Socket, scene: PlayGameScene) => {
+export const addClientLobbyListener = (socket:Socket, scene:LobbyScene)=>
+{
+    socket.on("login_confirm",data=>
+    {
+        let userInfo = data as UserInfo;
+        SocketManager.Instance.setName(userInfo.name);
+        scene.gotoLobby(userInfo.name);
+        socket.emit("room_list",{});
+    })
+
+    socket.on("enter_room",data=>
+    {
+        let roomInfo = data as RoomInfo;
+        scene.goToRoom(data);
+    })
+
+    socket.on("room_list",data=>
+    {
+        let list = data as RoomInfo[];
+        scene.drawRoomList(list);
+    })
+}
+
+export const addClientGameListener = (socket:Socket, scene: PlayGameScene) => {
+
     socket.on("position", data => {
         let pos:Position = data as Position;
         scene.onCompleteConnection(pos.x, pos.y);

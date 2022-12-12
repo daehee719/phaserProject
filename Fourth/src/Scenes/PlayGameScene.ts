@@ -4,7 +4,7 @@ import Player from "../GameObjects/Player";
 import {GameOption} from "../GameOption";
 import {io, Socket} from "socket.io-client"
 import { HitInfo, Position, SessionInfo } from "../Network/Protocol";
-import { addClientListener } from "../Network/ClientListener";
+import { addClientGameListener } from "../Network/ClientListener";
 import SocketManager from "../Core/SocketManager";
 import ProjectilePool from "../GameObjects/Pools/ProjectilePool";
 import Projectile from "../GameObjects/Projectile";
@@ -27,15 +27,11 @@ export default class PlayGameScene extends Phaser.Scene
     constructor()
     {
         super({key:"PlayGame"});   
-        const socket = io();
-        SocketManager.Instance = new SocketManager(socket);
-
     }
 
     create():void 
     {
         MapManager.Instance = new MapManager(this, "level1");
-        SocketManager.Instance.addProtocol(this);
         ProjectilePool.Instance = new ProjectilePool(this);
 
         this.playerName = "gondr";

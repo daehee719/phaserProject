@@ -1,5 +1,22 @@
 import {Socket} from 'socket.io'
 import { Position, SessionInfo } from '../Network/Protocol';
+import Room from './Room';
+
+export enum SessionStatus
+{
+    CONNECTED = 1,
+    LOBBY = 2,
+    INROOM = 3,
+    READYINROOM = 4,
+    PLAYING = 5,
+}
+
+export enum SessionTeam
+{
+    RED = 1,
+    BLUE = 2,
+    NONE = 3
+}
 
 export default class Session 
 {
@@ -9,11 +26,21 @@ export default class Session
     id:string;
     flipX:boolean = false;
     isMoving:boolean = false;
+    status:SessionStatus = SessionStatus.CONNECTED;
+    team:SessionTeam = SessionTeam.NONE;
+
+    room:Room|null = null;
+    
 
     constructor(socket:Socket)
     {
         this.socket = socket;
         this.id = socket.id;
+    }
+
+    setRoom(room:Room|null)
+    {
+        this.room = room;
     }
 
     setPosition(position:Position):void 

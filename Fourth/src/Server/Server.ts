@@ -1,5 +1,5 @@
 import Http from 'http'
-import Express, {Application, Request, response} from 'express'
+import Express, {Application, Request, Response} from 'express'
 import Path from 'path'
 import {Server, Socket} from 'socket.io';
 import Session from './Session';
@@ -7,6 +7,7 @@ import { addServerListener } from '../Network/ServerListener';
 import ServerMapManager from './ServerMapManager';
 import SessionManager from './SessionManager';
 import JobTimer from './JobTimer';
+import RoomManager from './RoomManager';
 
 //익스프레스 웹 엔진을 만들어주고
 const app: Application = Express();
@@ -19,7 +20,11 @@ ServerMapManager.Instance = new ServerMapManager(mapPath);
 SessionManager.Instance = new SessionManager();
 //end of 맵 정보 리딩 파트
  
- 
+RoomManager.Instance = new RoomManager(); 
+
+RoomManager.Instance.createRoom("더미방 1");
+RoomManager.Instance.createRoom("더미방 2");
+
 //엔진을 기반으로 서버를 만들어준다.
 const server = Http.createServer(app);
 //익스프레스로 만들어진 웹서버에다가 소켓서버를 붙여서 만들어주는거
@@ -44,6 +49,12 @@ io.on("connection", (socket: Socket) => {
 
 server.listen(50000, ()=>{
     console.log(`Server is running on 50000 port`);
+});
+
+app.get("/monitor",(req:Request,res:Response)=>
+{
+    let list = SessionManager.Instance.getAllSessionInfo();
+    res.json(list);
 });
 
 let infoSyncTimer:JobTimer = new JobTimer(50, ()=>

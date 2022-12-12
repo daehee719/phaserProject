@@ -13,18 +13,40 @@
     <div id="gameDiv">
         <div id="tooltip">
             <div class="arrow-box"></div>
-            <span class="msg">Sample Text!!</span>
+            <span class="msg">Sample text!!!</span>
         </div>
         <div id="pageContainer">
+            <!-- start of loginpage -->
             <div id="loginPage">
                 <div class="inner">
-                    <input type="text" id="nameInput" placeholder="사용할 아이디를 5글자 이내로 입력해주세요">
-                    <button id="btnLogin" class="btn btn_blue">로그인</button>
+                    <input type="text" id="nameInput" placeholder="사용할 아이디를 5글자 이내로 입력하세요" maxlength="5">
+                    <button id="btnLogin" class="btn btn-blue">로그인</button>
                 </div>
             </div>
-            <div id="lobbyPage"></div>
+            <!-- end of loginpage -->
+
+            <!-- start of lobbypage -->
+            <div id="lobbyPage">
+                <div class="title">
+                    <h2>로비 페이지</h2>
+                </div>
+                <div class="info-row">
+                    <div class="text-box">
+                        <span class="name">AAA</span>님 환영합니다.
+                    </div>
+                    <div class="button-box">
+                        <button id ="btnCreate" class="btn btn-blue">방생성</button>
+                        <button id ="btnRefresh" class="btn btn-blue">새로고침</button>
+                        <button id ="btnLogout" class="btn btn-red">나가기</button>
+                    </div>
+                </div>
+                <div class="content-body">
+                </div>
+            </div>
+            <!-- END of lobbypage -->
+
             <div id="roomPage"></div>
-        </div>
+        </div>    
     </div>
 </body>
 </html>

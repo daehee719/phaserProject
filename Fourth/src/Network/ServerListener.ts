@@ -1,12 +1,39 @@
 import { Socket } from "socket.io";
+import RoomManager from "../Server/RoomManager";
 import ServerMapManager from "../Server/ServerMapManager";
-import Session from "../Server/Session";
+import Session, { SessionStatus } from "../Server/Session";
 import SessionManager from "../Server/SessionManager";
-import { DeadInfo, HitInfo, iceball, ReviveInfo, SessionInfo } from "./Protocol";
+import { CreateRoom, DeadInfo, HitInfo, iceball, ReviveInfo, SessionInfo, UserInfo } from "./Protocol";
 
 //서버쪽 소켓이 리스닝해야하는 이벤트를 여기서 다 등록한다.
 export const addServerListener = (socket: Socket, session:Session) => {
-    
+    socket.on("login_user",data=>
+    {
+        if(session.status == SessionStatus.CONNECTED)   
+        {
+            let userInfo = data as UserInfo;
+            session.setName(userInfo.name);
+            session.status = SessionStatus.LOBBY;
+            socket.emit("login_confirm", userInfo);
+        }
+    })
+
+    socket.on("room_list",data=>
+    {
+        socket.emit("room_list",RoomManager.Instance.getAllRoomInfo())
+    })
+
+    socket.on("create_room",data=>
+    {
+        let {name, playerId} = data as CreateRoom;
+        
+        let room = RoomManager.Instance.createRoom(name);
+        room.ownerID = playerId;
+        room.enterRoom(session);
+
+        socket.emit("enter_room",room.serialize());
+    })
+
     socket.on("enter", data => {
         let pos = ServerMapManager.Instance.getRandomSpawnPosition();
         socket.emit("position", pos);
@@ -21,6 +48,8 @@ export const addServerListener = (socket: Socket, session:Session) => {
         //지금 들어온 소켓은 안받을 거다.
         SessionManager.Instance.broadcast("enter_player", session.getSessionInfo(), socket.id, true);
     });
+
+    
 
     socket.on("info_sync", data=>
     {
@@ -71,5 +100,6 @@ export const addServerListener = (socket: Socket, session:Session) => {
             SessionManager.Instance.broadcast("player_revive", reviveInfo, socket.id, false);
         }, 1000*5);
     })
+    
     
 };

@@ -1,64 +1,153 @@
-*{margin:0; padding:0;}
-#gameDiv
+*{margin:0; padding:0; user-select: none;}
+
+#gameDiv 
 {
     background-color: transparent;
-    width: 100%;
-    height: 100%;
     position: absolute;
     left:0;
     top:0;
     overflow: hidden;
 }
 
-#pageContainer
-{
+#pageContainer {
     width: 300%;
     height: 100%;
     display: flex;
     position: absolute;
-    left : 0;
+    left:0%;
     top:0;
+    /* 이건 유니티의 트윈하고 같은거야 */
     transition: left 0.4s;
 }
 
-#loginPage
+#loginPage 
 {
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
 
-#loginPage > .inner
+#loginPage > .inner 
 {
-    width :400px;
-    height:45px;
-    background-color: rgba(45,40,40,0.8);
-    border-radius: 10px;
+    width: 400px;
+    height: 45px;
+    background-color: rgba(46, 39, 39, 0.8);
+    border-radius: 5px;
     display: flex;
     padding: 10px 15px;
 }
 
-#loginPage > .inner > input
+#loginPage > .inner > input 
 {
-    flex :4;
-    margin-right:10px;
+    flex:4;
+    margin-right: 10px;
 }
-
-#loginPage > .inner > button
+#loginPage > .inner > button 
 {
     flex:1;
 }
 
-#lobbyPage
+/* startofLobby */
+#lobbyPage 
 {
-    background-color: #0f0;
+    display: flex;
+    flex-direction: column;
+}
+#lobbyPage > .title 
+{
+    height:70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#lobbyPage > .title > h2 
+{
+    font-size:35px;
+    color:#fff;
+    text-shadow: 2px 2px 2px rgba(0,0,0, 0.5);
+}
+#lobbyPage > .info-row 
+{
+    height:50px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
 }
 
-#roomPage
+#lobbyPage > .info-row > .text-box 
+{
+    color:#fff;
+    text-shadow: 2px 2px 2px rgba(0,0,0, 0.5);
+}
+#lobbyPage > .info-row > .text-box > .name
+{
+    font-weight: 800;
+}
+#lobbyPage > .content-body 
+{
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    flex:1;
+    margin:20px;
+    padding: 10px 30px;
+    overflow-y: auto;
+}
+
+#lobbyPage > .content-body > .room 
+{
+    width:100%;
+    display: flex;
+    justify-content: space-between;
+    height:40px;
+    align-items: center;
+    background-color: #fff;
+    padding:0px 15px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    cursor:pointer;
+    transition: all 0.3s;
+}
+#lobbyPage > .content-body > .room:hover
+{
+    background-color: rgb(33, 33, 33);
+    color: #fff;
+}
+
+#lobbyPage > .content-body > .room > .light 
+{
+    width:40px;
+    height:40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#lobbyPage > .content-body > .room > .light > .circle 
+{
+    width:25px;
+    height:25px;
+    border-radius: 50%;
+}
+#lobbyPage > .content-body > .room > .light > .circle.green 
+{
+    background: radial-gradient(rgb(91, 190, 77) 4px, rgb(38, 172, 21) 50%);
+}
+#lobbyPage > .content-body > .room > .light > .circle.red 
+{
+    background: radial-gradient(rgb(201, 54, 54) 4px, rgb(141, 12, 12) 50%);
+}
+
+/* end of Lobby */
+
+#roomPage 
 {
     background-color: #00f;
 }
+
+
+
+
+/* 기타등등 스타일 */
 
 #tooltip 
 {
@@ -67,22 +156,21 @@
     background-color: #000;
     color:#fff;
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: 4px;    
     z-index: 50;
     visibility: hidden;
+
     opacity: 0;
     transform: scaleY(0);
     transition: opacity 0.6s, transform 0.4s;
-    transform-origin: center bottom;
+    transform-origin: left bottom;
 }
-#tooltip.on{
+#tooltip.on 
+{
     opacity: 1;
     transform: scaleY(1);
-    visibility:visible;
-    transition: opacity 0.6s, transform 0.4s;
+    visibility: visible;
 }
-
-
 #tooltip > .arrow-box 
 {
     width: 15px;
@@ -93,27 +181,37 @@
     transform: translateY(50%) rotateZ(45deg);
 }
 
-.btn
+.btn 
 {
-    color:white;
-    border:1px solid transparent;
-    padding: 4px 8px;
+    color:#fff;
+    border: 1px solid transparent;
+    padding:4px 8px;
     transition: all 0.5s;
-    cursor:pointer;
+    cursor: pointer;
     border-radius: 4px;
 }
 
-.btn.btn_blue
+.btn.btn-blue 
 {
-    background-color: rgb(57, 57, 194);
-    border:1px solid rgb(28, 28, 190);
+    background-color: rgb(25, 12, 138);
+    border:1px solid rgb(19, 9, 105);
 }
-.btn.btn_blue:hover
+.btn.btn-blue:hover 
 {
-    background-color:rgb(28, 28, 190);
+    background-color: rgb(19, 9, 105);
 }
 
-input
+.btn.btn-red 
+{
+    background-color: rgb(179, 19, 14);
+    border:1px solid rgb(161, 16, 11);
+}
+.btn.btn-red:hover 
+{
+    background-color: rgb(161, 16, 11);
+}
+
+input 
 {
     border-radius: 4px;
     border:1px solid #ddd;

@@ -1,11 +1,18 @@
 import Phaser from "phaser";
+import {io, Socket} from "socket.io-client"
+import SocketManager from "../Core/SocketManager";
+import LobbyScene from "./LobbyScene";
 
 export default class PreloadAssetScene extends Phaser.Scene
 {
     constructor()
     {
         super({key:"PreloadAsset"});
+        const socket = io();
+        SocketManager.Instance = new SocketManager(socket);
     }
+
+    
 
     preload(): void 
     {
