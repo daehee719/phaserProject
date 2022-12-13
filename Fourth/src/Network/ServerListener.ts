@@ -1,9 +1,9 @@
 import { Socket } from "socket.io";
 import RoomManager from "../Server/RoomManager";
 import ServerMapManager from "../Server/ServerMapManager";
-import Session, { SessionStatus } from "../Server/Session";
+import Session, { SessionStatus, SessionTeam } from "../Server/Session";
 import SessionManager from "../Server/SessionManager";
-import { CreateRoom, DeadInfo, HitInfo, iceball, ReviveInfo, SessionInfo, UserInfo } from "./Protocol";
+import { ChangeTeam, CreateRoom, DeadInfo, EnterRoom, HitInfo, iceball, MsgBox, ReviveInfo, SessionInfo, UserInfo } from "./Protocol";
 
 //서버쪽 소켓이 리스닝해야하는 이벤트를 여기서 다 등록한다.
 export const addServerListener = (socket: Socket, session:Session) => {
@@ -32,6 +32,44 @@ export const addServerListener = (socket: Socket, session:Session) => {
         room.enterRoom(session);
 
         socket.emit("enter_room",room.serialize());
+    })
+
+    socket.on("enter_room",data=>
+    {
+        let enterRoom = data as EnterRoom;
+        let room = RoomManager.Instance.getRoom(enterRoom.roomNo);
+        let msg: MsgBox = {msg:"존재하지 않는 방입니다."};
+        if(room == null)
+        {
+            socket.emit("msgbox",{msg})
+        }
+        else
+        {
+            let result = room.enterRoom(session);
+            if(result == false)
+            {
+                msg.msg = "더 이상 방에 자리가 없습니다.";
+                socket.emit("msgbox",msg);   
+            }
+            else
+            {
+                let newUser:UserInfo ={name:session.name, playerId:session.id};
+                room.broadcast("new_user",newUser,session.id,true);
+                socket.emit("enter_room",room.serialize());
+            }
+        }
+    })
+
+    socket.on("request_team", data=>
+    {
+        let changeTeam = data as ChangeTeam;
+        if(session.status != SessionStatus.INROOM)
+        {
+            socket.emit("msgbox",{msg:"올바르지 않은 접근입니다."});
+        }
+
+        session.team = changeTeam.team;
+        session.room?.broadcast("confirm_team",changeTeam,"none");
     })
 
     socket.on("enter", data => {
@@ -69,7 +107,11 @@ export const addServerListener = (socket: Socket, session:Session) => {
         console.log(`${session.name} ( ${socket.id} ) is disconnected`);
 
         //여기서 접속한 모든 사용자에게 해당 유저가 떠났음을 알려줘야 한다.
-        SessionManager.Instance.broadcast("leave_player", session.getSessionInfo(), socket.id, true);
+        if(session.room != null)
+        {
+            session.room.broadcast("leave_player", session.getSessionInfo(),socket.id, true);
+        }
+        //SessionManager.Instance.broadcast("leave_player", session.getSessionInfo(), socket.id, true);
     });
     socket.on("hit_report",data=>
     {

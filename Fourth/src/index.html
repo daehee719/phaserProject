@@ -13,13 +13,13 @@
     <div id="gameDiv">
         <div id="tooltip">
             <div class="arrow-box"></div>
-            <span class="msg">Sample text!!!</span>
+            <span class="msg">Sample text!!</span>
         </div>
         <div id="pageContainer">
             <!-- start of loginpage -->
             <div id="loginPage">
                 <div class="inner">
-                    <input type="text" id="nameInput" placeholder="사용할 아이디를 5글자 이내로 입력하세요" maxlength="5">
+                    <input type="text" id="nameInput" placeholder="사용할 아이디를 5글자 이내로 입력하세요">
                     <button id="btnLogin" class="btn btn-blue">로그인</button>
                 </div>
             </div>
@@ -35,18 +35,63 @@
                         <span class="name">AAA</span>님 환영합니다.
                     </div>
                     <div class="button-box">
-                        <button id ="btnCreate" class="btn btn-blue">방생성</button>
-                        <button id ="btnRefresh" class="btn btn-blue">새로고침</button>
-                        <button id ="btnLogout" class="btn btn-red">나가기</button>
+                        <button id="btnCreate" class="btn btn-blue">방생성</button>
+                        <button id="btnRefresh" class="btn btn-blue">새로고침</button>
+                        <button id="btnLogout" class="btn btn-red">나가기</button>
                     </div>
                 </div>
                 <div class="content-body">
+                    <div class="room">
+                        <div class="name">2:2 초보만 오세요</div>
+                        <div class="light">
+                            <div class="circle green"></div>
+                        </div>
+                        <div class="count-box">
+                            <span class="current">1</span> / 
+                            <span class="total">4</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- END of lobbypage -->
+            <!-- end of lobbypage -->
 
-            <div id="roomPage"></div>
-        </div>    
+            <!-- start of roompage -->
+            <div id="roomPage">
+                <div class="title-header">
+                    <h2><span class="name">방제목</span> 페이지</h2>
+                    <div class="menu">
+                        <button id="btnLeave" class="btn btn-red">나가기</button>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="team-row">
+                        <div class="team red">
+                            <div class="title">Red Team</div>
+                            <div class="list">
+
+                            </div>
+                        </div>
+                        <div class="team blue">
+                            <div class="title">Blue Team</div>
+                            <div class="list">
+
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="waiting-row">
+                        <div class="user-list">
+                            <div class="user my">
+                                <div class="name">최선한</div>
+                                <div class="ready">Ready</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end of roompage -->
+        </div>
     </div>
 </body>
 </html>

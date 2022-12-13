@@ -1,7 +1,8 @@
 import Phaser from "phaser";
 import SocketManager from "../Core/SocketManager";
 import TooltipHelper from "../Core/TooltipHelper";
-import { CreateRoom, RoomInfo, UserInfo } from "../Network/Protocol";
+import { ChangeTeam, CreateRoom, EnterRoom, RoomInfo, UserInfo } from "../Network/Protocol";
+import { SessionTeam } from "../Server/Session";
 
 export default class LobbyScene extends Phaser.Scene
 {
@@ -25,6 +26,7 @@ export default class LobbyScene extends Phaser.Scene
         window.addEventListener("resize", ()=> this.resizeUI(20));
         this.setUpLoginPage();
         this.setUpLobbyPage(); //로비 페이지 이벤트 셋팅 (한번만)
+        this.setUpRoomPage();
     }
 
     create():void 
@@ -113,7 +115,9 @@ export default class LobbyScene extends Phaser.Scene
             let {name, userCnt, maxCnt, isPlaying, no} = info;
             let roomHTML = this.getRoomHTML(name, userCnt, maxCnt, isPlaying);
             roomHTML.addEventListener("click",e=>{
-                console.log(no);
+                //console.log(no);
+                let enterRoom : EnterRoom = {roomNo:no};
+                SocketManager.Instance.sendData("enter_room",enterRoom);
             })
             body.appendChild(roomHTML);
         });
@@ -140,9 +144,76 @@ export default class LobbyScene extends Phaser.Scene
     {
         const pageContainer = this.UIDiv.querySelector("#pageContainer") as HTMLDivElement;
         pageContainer.style.left = "-200%";
-
         //여기에 roomInfo에 있는 유저리스트를  싹다 그려주는 기능이 있어야 한다.
         console.log(roomInfo);
+
+        let listDiv = this.UIDiv.querySelector(".waiting-row > .user-list") as HTMLDivElement;
+        listDiv.innerHTML ="";
+        roomInfo.userList.forEach(u=>
+            {
+                let userHTML = this.getUserHTML(u.name, u.playerId);
+                listDiv.appendChild(userHTML);
+                userHTML.addEventListener("click",e=>
+                {
+                    if(userHTML.classList.contains("my"))
+                    {
+                        let readyDiv = userHTML.querySelector(".ready") as HTMLDivElement;
+                        readyDiv.classList.add("on");
+                    }
+                })
+            })
+    }
+
+    getUserHTML(name:string, playerID:string):HTMLDivElement
+    {
+        let div = document.createElement("div");
+        div.innerHTML = `
+        <div data-id="${playerID}" class="user ${playerID == SocketManager.Instance.socket.id? "my":""}">
+            <div class="name">${name}</div>
+            <div class="ready">Ready</div>
+        </div>`
+        return div.firstElementChild as HTMLDivElement;
+    }
+
+    setUpRoomPage():void
+    {
+        const redTeamDiv = document.querySelector(".team.red") as HTMLDivElement;
+        const blueTeamDiv = document.querySelector(".team.blue") as HTMLDivElement;
+        redTeamDiv.addEventListener("click",e=>
+        {
+            const me = this.UIDiv.querySelector(".my") as HTMLDivElement;
+
+            let requestTeam : ChangeTeam = {plyaerID: SocketManager.Instance.socket.id, team:SessionTeam.RED}
+
+            SocketManager.Instance.sendData("request_team",requestTeam);
+            //redTeamDiv.querySelector(".list")?.appendChild(me);
+        })
+        blueTeamDiv.addEventListener("click",e=>
+        {
+            const me = this.UIDiv.querySelector(".my") as HTMLDivElement;
+            let requestTeam : ChangeTeam = {plyaerID: SocketManager.Instance.socket.id, team:SessionTeam.BLUE}
+
+            SocketManager.Instance.sendData("request_team",requestTeam);
+            //blueTeamDiv.querySelector(".list")?.appendChild(me);
+        })
+    }
+
+    changeTeam(data : ChangeTeam):void
+    {
+        let target = this.UIDiv.querySelector(`[data-id='${data.plyaerID}']`) as HTMLDivElement;
+        if(data.team == SessionTeam.BLUE)
+        {
+            document.querySelector(".team.blue > .list")?.appendChild(target);
+        } 
+        else if(data.team == SessionTeam.RED)
+        {
+            document.querySelector(".team.red > .list")?.appendChild(target);
+        }
+    }
+
+    addRoomUser(data : UserInfo):void
+    {
+        let target = this.UIDiv.querySelector(`[data-id='${data.playerId}']`) as HTMLDivElement;
     }
 
 }

@@ -141,10 +141,142 @@
 
 #roomPage 
 {
-    background-color: #00f;
+    display: flex;
+    flex-direction: column;
 }
 
+#roomPage > .title-header
+{
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
+    position: relative;
+    color:#fff;
+    text-shadow: 2px 2px 2px rgba(0,0,0, 0.5);
+}
+
+#roomPage > .title-header > .menu
+{
+    position: absolute;
+    right:10px;
+    bottom: 10px;
+}
+
+#roomPage > .content-body
+{
+    flex:1;
+    display: flex;
+    flex-direction: column;
+}
+
+#roomPage > .content-body > .team-row
+{
+    flex:1;
+    display: flex;
+    justify-content: space-around;
+}
+#roomPage > .content-body > .team-row > .team
+{
+    width:45%;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    padding:10px;
+    box-sizing: border-box;
+    border:2px solid transparent;
+    transition: all 0.3s;
+}
+
+#roomPage > .content-body > .team-row > .team > .title
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    font-weight: 800;
+
+    text-shadow: 2px 2px 2px rgba(0,0,0, 0.4);
+}
+
+#roomPage > .content-body > .team-row > .team.blue > .title
+{
+    color:blue;
+}
+
+#roomPage > .content-body > .team-row > .team.blue:hover
+{
+    border:2px solid #00f;
+}
+
+#roomPage > .content-body > .team-row > .team.red > .title
+{
+    color: red;
+}
+
+#roomPage > .content-body > .team-row > .team.red:hover
+{
+    border:2px solid #f00;
+}
+
+#roomPage > .content-body > .waiting-row
+{
+    height: 50px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    padding: 0 20px;
+}
+
+#roomPage > .content-body > .waiting-row > .user-list
+{
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    width:100%;
+    height:100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 10px;
+}
+
+#roomPage .user
+{
+    width:160px;
+    height:40px;
+    background-color: #fff;
+    border:1px solid #ddd;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding:0 10px;
+    margin-right:10px;
+}
+#roomPage .user.my
+{
+    font-weight: 800;
+}
+#roomPage .user > .ready
+{
+    border: 1px solid rgb(7,112,47);
+    border-radius: 4px;
+    color:#000;
+    padding:4px 12px;
+    transition: all 0.3s;
+}
+
+#roomPage .user > .ready:hover
+{
+    background-color: rgb(7,112,47);
+    color:#fff;
+}
+
+#roomPage .user > .ready.on
+{
+    background-color: rgb(7,112,47);
+    color:#fff;
+}
 
 
 /* 기타등등 스타일 */
@@ -165,6 +297,8 @@
     transition: opacity 0.6s, transform 0.4s;
     transform-origin: left bottom;
 }
+
+
 #tooltip.on 
 {
     opacity: 1;

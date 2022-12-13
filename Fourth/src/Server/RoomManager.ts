@@ -37,6 +37,14 @@ export default class RoomManager
         }
     }
 
+    getRoom(roomNo:number):Room|null
+    {
+        if(this.roomMap[roomNo] == undefined)
+            return null;
+        else return this.roomMap[roomNo];
+    }
+
+
     getAllRoomInfo():RoomInfo[]
     {
         let list : RoomInfo[] =[];

@@ -1,3 +1,5 @@
+import { SessionTeam } from "../Server/Session";
+
 export interface Position 
 {
     x:number;
@@ -58,7 +60,10 @@ export interface CreateRoom
     name:string;
     playerId:string;
 }
-
+export interface EnterRoom
+{
+    roomNo:number;
+}
 export interface RoomInfo
 {
     userList : UserInfo[];
@@ -72,4 +77,10 @@ export interface RoomInfo
 export interface MsgBox
 {
     msg:string;
+}
+
+export interface ChangeTeam
+{
+    plyaerID:string;
+    team:SessionTeam;
 }

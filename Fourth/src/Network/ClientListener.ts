@@ -3,8 +3,9 @@ import SocketManager from "../Core/SocketManager";
 import ProjectilePool from "../GameObjects/Pools/ProjectilePool";
 import LobbyScene from "../Scenes/LobbyScene";
 import PlayGameScene from "../Scenes/PlayGameScene";
+import RoomManager from "../Server/RoomManager";
 import SessionManager from "../Server/SessionManager";
-import { DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, RoomInfo, SessionInfo, UserInfo } from "./Protocol";
+import { ChangeTeam, DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, RoomInfo, SessionInfo, UserInfo } from "./Protocol";
 
 export const addClientLobbyListener = (socket:Socket, scene:LobbyScene)=>
 {
@@ -26,6 +27,17 @@ export const addClientLobbyListener = (socket:Socket, scene:LobbyScene)=>
     {
         let list = data as RoomInfo[];
         scene.drawRoomList(list);
+    })
+    socket.on("confirm_team",data=>
+    {
+        let ct = data as ChangeTeam;
+        scene.changeTeam(ct);
+    })
+
+    socket.on("new_user",data=>
+    {
+        let user = data as UserInfo;
+        scene.addRoomUser(user);
     })
 }
 

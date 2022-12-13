@@ -57,9 +57,9 @@ app.get("/monitor",(req:Request,res:Response)=>
     res.json(list);
 });
 
-let infoSyncTimer:JobTimer = new JobTimer(50, ()=>
-{
-    let list = SessionManager.Instance.getAllSessionInfo();
-    SessionManager.Instance.broadcast("info_sync",{list},"none",false);
-});
-infoSyncTimer.startTimer();
+// let infoSyncTimer:JobTimer = new JobTimer(50, ()=>
+// {
+//     let list = SessionManager.Instance.getAllSessionInfo();
+//     SessionManager.Instance.broadcast("info_sync",{list},"none",false);
+// });
+// infoSyncTimer.startTimer();
