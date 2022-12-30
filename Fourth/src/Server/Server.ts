@@ -53,7 +53,7 @@ server.listen(50000, ()=>{
 
 app.get("/monitor",(req:Request,res:Response)=>
 {
-    let list = SessionManager.Instance.getAllSessionInfo();
+    let list = RoomManager.Instance.getAllRoomInfo();
     res.json(list);
 });
 

@@ -5,7 +5,7 @@ import LobbyScene from "../Scenes/LobbyScene";
 import PlayGameScene from "../Scenes/PlayGameScene";
 import RoomManager from "../Server/RoomManager";
 import SessionManager from "../Server/SessionManager";
-import { ChangeTeam, DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, RoomInfo, SessionInfo, UserInfo } from "./Protocol";
+import { ChangeTeam, DeadInfo, HitInfo, iceball, PlayerList, Position, ReviveInfo, RoomInfo, RoomReady, SessionInfo, UserInfo } from "./Protocol";
 
 export const addClientLobbyListener = (socket:Socket, scene:LobbyScene)=>
 {
@@ -38,6 +38,23 @@ export const addClientLobbyListener = (socket:Socket, scene:LobbyScene)=>
     {
         let user = data as UserInfo;
         scene.addRoomUser(user);
+    })
+
+    socket.on("user_ready", data=>
+    {
+        let user = data as UserInfo;
+        scene.userReady(user);
+    })
+
+    socket.on("leave_user",data=>
+    {
+        let user = data as UserInfo;
+        scene.removeUserHTML(user);
+    })
+    socket.on("room_ready",data=>
+    {
+        let roomReady = data as RoomReady;
+        scene.setRoomReady(roomReady.ready);
     })
 }
 

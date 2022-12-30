@@ -1,3 +1,4 @@
+import SocketManager from "../Core/SocketManager";
 import { RoomInfo, UserInfo } from "../Network/Protocol";
 import { RoomStatus } from "./RoomManager";
 import Session, { SessionStatus } from "./Session";
@@ -35,12 +36,17 @@ export default class Room
         this.sessionMap[socketID].setRoom(null);
         this.sessionMap[socketID].status = SessionStatus.LOBBY;
         this.count--;
+        let leaveUserInfo = this.sessionMap[socketID].getUserInfo();
         delete this.sessionMap[socketID];
         if(socketID == this.ownerID)
         {
             console.log(`방장이 나갔습니다. ${this.roomNo}를 폐쇠합니다`);
             this.count=0;
             this.kickAllUser();
+        }
+        else{
+            this.broadcast("leave_user",leaveUserInfo, socketID)
+            this.sessionMap[this.ownerID].send("room_ready",{ready:true}); 
         }
     }
     kickAllUser():void
@@ -71,7 +77,7 @@ export default class Room
         for(let key in this.sessionMap)
         {
             let s = this.sessionMap[key];
-            list.push({name:s.name, playerId:s.id});
+            list.push(s.getUserInfo());
         }
         return list;
     }
@@ -85,7 +91,19 @@ export default class Room
             maxCnt : this.maxCount,
             isPlaying: this.status==RoomStatus.RUNNING,
             no : this.roomNo,
+            ownerId:this.ownerID,
         }
         return info;
+    }
+
+    checkAllReady():boolean
+    {
+        let isReady : boolean = true;
+        for(let key in this.sessionMap)
+        {
+            if(!this.sessionMap[key].isReady)
+                isReady = false;
+        }
+        return isReady;
     }
 }

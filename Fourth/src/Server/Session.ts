@@ -1,5 +1,5 @@
 import {Socket} from 'socket.io'
-import { Position, SessionInfo } from '../Network/Protocol';
+import { Position, SessionInfo, UserInfo } from '../Network/Protocol';
 import Room from './Room';
 
 export enum SessionStatus
@@ -28,7 +28,7 @@ export default class Session
     isMoving:boolean = false;
     status:SessionStatus = SessionStatus.CONNECTED;
     team:SessionTeam = SessionTeam.NONE;
-
+    isReady:boolean = false;
     room:Room|null = null;
     
 
@@ -70,5 +70,11 @@ export default class Session
         this.flipX = info.flipX;
         this.isMoving = info.isMoveing;
         //외의 것.
+    }
+
+    getUserInfo():UserInfo
+    {
+        let {name, id, team,isReady} = this;
+        return {name, playerId:id, team,isReady};
     }
 }

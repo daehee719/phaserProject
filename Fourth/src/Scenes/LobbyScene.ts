@@ -1,8 +1,10 @@
-import Phaser from "phaser";
+import Phaser, { NONE } from "phaser";
 import SocketManager from "../Core/SocketManager";
 import TooltipHelper from "../Core/TooltipHelper";
 import { ChangeTeam, CreateRoom, EnterRoom, RoomInfo, UserInfo } from "../Network/Protocol";
-import { SessionTeam } from "../Server/Session";
+import RoomManager from "../Server/RoomManager";
+import Session, { SessionTeam } from "../Server/Session";
+import SessionManager from "../Server/SessionManager";
 
 export default class LobbyScene extends Phaser.Scene
 {
@@ -10,6 +12,12 @@ export default class LobbyScene extends Phaser.Scene
     gameCanvas: HTMLCanvasElement;
 
     toolTip:TooltipHelper;
+
+    listDiv : HTMLDivElement;
+    redTeamDiv:HTMLDivElement;
+    blueTeamDiv:HTMLDivElement;
+
+    startBtn : HTMLButtonElement;
     constructor()
     {
         super({key:"Lobby"});
@@ -21,6 +29,10 @@ export default class LobbyScene extends Phaser.Scene
 
         this.toolTip = new TooltipHelper();
 
+        this.listDiv = this.UIDiv.querySelector(".waiting-row > .user-list") as HTMLDivElement;
+        this.redTeamDiv = document.querySelector(".team.red") as HTMLDivElement;
+        this.blueTeamDiv = document.querySelector(".team.blue") as HTMLDivElement;
+        this.startBtn = document.querySelector("#btnStart") as HTMLButtonElement;
         this.resizeUI(0);
 
         window.addEventListener("resize", ()=> this.resizeUI(20));
@@ -32,6 +44,9 @@ export default class LobbyScene extends Phaser.Scene
     create():void 
     {
         const sky = this.add.image(0, 0, "bg_sky").setOrigin(0,0).setScale(4.5);
+
+        
+        this.startBtn.style.visibility = "hidden";
     }
 
     resizeUI(time:number):void 
@@ -57,6 +72,7 @@ export default class LobbyScene extends Phaser.Scene
     {
         const nameInput = document.querySelector("#nameInput") as HTMLInputElement;
         const loginBtn = document.querySelector("#btnLogin") as HTMLButtonElement;
+        const leaveBtn = document.querySelector("#btnLeave") as HTMLButtonElement;
         nameInput.addEventListener("keydown", e => {
             this.toolTip.closeTooltip(); //입력창에 뭔가 입력되면 툴팁 닫아라
         });
@@ -68,11 +84,18 @@ export default class LobbyScene extends Phaser.Scene
                 this.toolTip.showTooltip(this.UIDiv, nameInput, -40, "아이디는 공백일 수 없고 5글자 이내입니다.");
                 return;
             }
-
             //여기에 name을 소켓을 통해 전송하는 로직 필요
             let data : UserInfo = {name, playerId:""};
             SocketManager.Instance.sendData("login_user", data);
         });
+
+        leaveBtn.addEventListener("click",e=>
+        {
+            const pageContainer = this.UIDiv.querySelector("#pageContainer") as HTMLDivElement;
+            pageContainer.style.left = "-100%";
+            let name = nameInput.value.trim();
+            let data : UserInfo = {name, playerId:""};
+        })
     }
 
     gotoLobby(name:string):void 
@@ -147,21 +170,51 @@ export default class LobbyScene extends Phaser.Scene
         //여기에 roomInfo에 있는 유저리스트를  싹다 그려주는 기능이 있어야 한다.
         console.log(roomInfo);
 
-        let listDiv = this.UIDiv.querySelector(".waiting-row > .user-list") as HTMLDivElement;
-        listDiv.innerHTML ="";
+        this.listDiv.innerHTML ="";
         roomInfo.userList.forEach(u=>
             {
-                let userHTML = this.getUserHTML(u.name, u.playerId);
-                listDiv.appendChild(userHTML);
-                userHTML.addEventListener("click",e=>
-                {
-                    if(userHTML.classList.contains("my"))
-                    {
-                        let readyDiv = userHTML.querySelector(".ready") as HTMLDivElement;
-                        readyDiv.classList.add("on");
-                    }
-                })
+                this.createUser(u)
             })
+    }
+
+    createUser(u :UserInfo):void
+    {
+        let userHTML = this.getUserHTML(u.name, u.playerId);
+        if(u.team == SessionTeam.NONE)
+        {
+            this.listDiv.appendChild(userHTML);
+        }
+        else if(u.team == SessionTeam.RED)
+        {
+            this.redTeamDiv.appendChild(userHTML);
+        }
+        else
+        {
+            this.blueTeamDiv.appendChild(userHTML);
+        }
+        let readyDiv = userHTML.querySelector(".ready") as HTMLDivElement;
+        if(u.isReady)
+        {
+            readyDiv.classList.add("on");
+        }
+        else
+        {
+            readyDiv.classList.remove("on");
+        }
+        userHTML.addEventListener("click",e=>
+        {
+            e.stopPropagation();
+            if(userHTML.classList.contains("my"))
+            {
+                SocketManager.Instance.sendData("user_ready",u);
+            }
+        })
+    }
+
+    removeUserHTML(u :UserInfo):void
+    {
+        let target = this.UIDiv.querySelector(`[data-id='${u.playerId}']`) as HTMLDivElement;
+        target.remove();
     }
 
     getUserHTML(name:string, playerID:string):HTMLDivElement
@@ -177,9 +230,7 @@ export default class LobbyScene extends Phaser.Scene
 
     setUpRoomPage():void
     {
-        const redTeamDiv = document.querySelector(".team.red") as HTMLDivElement;
-        const blueTeamDiv = document.querySelector(".team.blue") as HTMLDivElement;
-        redTeamDiv.addEventListener("click",e=>
+        this.redTeamDiv.addEventListener("click",e=>
         {
             const me = this.UIDiv.querySelector(".my") as HTMLDivElement;
 
@@ -188,7 +239,7 @@ export default class LobbyScene extends Phaser.Scene
             SocketManager.Instance.sendData("request_team",requestTeam);
             //redTeamDiv.querySelector(".list")?.appendChild(me);
         })
-        blueTeamDiv.addEventListener("click",e=>
+        this.blueTeamDiv.addEventListener("click",e=>
         {
             const me = this.UIDiv.querySelector(".my") as HTMLDivElement;
             let requestTeam : ChangeTeam = {plyaerID: SocketManager.Instance.socket.id, team:SessionTeam.BLUE}
@@ -196,6 +247,11 @@ export default class LobbyScene extends Phaser.Scene
             SocketManager.Instance.sendData("request_team",requestTeam);
             //blueTeamDiv.querySelector(".list")?.appendChild(me);
         })
+    }
+    
+    addRoomUser(user : UserInfo):void
+    {
+        this.createUser(user);
     }
 
     changeTeam(data : ChangeTeam):void
@@ -211,9 +267,22 @@ export default class LobbyScene extends Phaser.Scene
         }
     }
 
-    addRoomUser(data : UserInfo):void
+    userReady(user : UserInfo):void
     {
-        let target = this.UIDiv.querySelector(`[data-id='${data.playerId}']`) as HTMLDivElement;
+        let target = this.UIDiv.querySelector(`[data-id='${user.playerId}']`) as HTMLDivElement;
+        let readyDiv = target.querySelector(".ready") as HTMLDivElement;
+        if(user.isReady)
+        {
+            readyDiv.classList.add("on");
+        }
+        else
+        {
+            readyDiv.classList.remove("on");
+        }
     }
 
+    setRoomReady(ready : boolean):void
+    {
+        this.startBtn.style.visibility = ready?"visible":"hidden";
+    }
 }

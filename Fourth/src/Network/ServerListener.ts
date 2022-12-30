@@ -1,4 +1,5 @@
 import { Socket } from "socket.io";
+import Room from "../Server/Room";
 import RoomManager from "../Server/RoomManager";
 import ServerMapManager from "../Server/ServerMapManager";
 import Session, { SessionStatus, SessionTeam } from "../Server/Session";
@@ -53,13 +54,14 @@ export const addServerListener = (socket: Socket, session:Session) => {
             }
             else
             {
-                let newUser:UserInfo ={name:session.name, playerId:session.id};
+                let newUser:UserInfo =session.getUserInfo();
                 room.broadcast("new_user",newUser,session.id,true);
                 socket.emit("enter_room",room.serialize());
             }
         }
     })
 
+    
     socket.on("request_team", data=>
     {
         let changeTeam = data as ChangeTeam;
@@ -67,11 +69,33 @@ export const addServerListener = (socket: Socket, session:Session) => {
         {
             socket.emit("msgbox",{msg:"올바르지 않은 접근입니다."});
         }
-
-        session.team = changeTeam.team;
-        session.room?.broadcast("confirm_team",changeTeam,"none");
+        if(session.isReady)
+        {
+            socket.emit("msgbox",{msg:"Ready를 해제해 주세요"})
+        }
+        else
+        {
+            session.team = changeTeam.team;
+            session.room?.broadcast("confirm_team",changeTeam,"none");
+        }
     })
-
+    
+    socket.on("user_ready", data=>
+    {
+        let userInfo = data as UserInfo;
+        if(session.team != SessionTeam.NONE)
+        {
+            session.isReady = !session.isReady;
+            userInfo.isReady = session.isReady;
+            session.room?.broadcast("user_ready",userInfo, session.id);
+            let room = session.room as Room;
+            room.sessionMap[room.ownerID].send("room_ready",{ready:room.checkAllReady()});
+        }
+        else
+        {
+            socket.emit("msgbox",{msg:"팀을 먼저 선택해야 합니다."})
+        }
+    })
     socket.on("enter", data => {
         let pos = ServerMapManager.Instance.getRandomSpawnPosition();
         socket.emit("position", pos);
@@ -86,8 +110,6 @@ export const addServerListener = (socket: Socket, session:Session) => {
         //지금 들어온 소켓은 안받을 거다.
         SessionManager.Instance.broadcast("enter_player", session.getSessionInfo(), socket.id, true);
     });
-
-    
 
     socket.on("info_sync", data=>
     {

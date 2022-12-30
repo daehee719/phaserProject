@@ -54,6 +54,8 @@ export interface UserInfo
 {
     name:string;
     playerId:string;
+    team?:SessionTeam;
+    isReady?:boolean;
 }
 export interface CreateRoom
 {
@@ -72,6 +74,7 @@ export interface RoomInfo
     userCnt:number;
     maxCnt:number;
     isPlaying:boolean;
+    ownerId : string;
 }
 
 export interface MsgBox
@@ -83,4 +86,8 @@ export interface ChangeTeam
 {
     plyaerID:string;
     team:SessionTeam;
+}
+
+export interface RoomReady{
+    ready:boolean;
 }
